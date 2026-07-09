@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Gradient Background -->
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded Square Background -->
+  <rect width="100" height="100" rx="24" fill="url(#bg-grad)" />
+  
+  <!-- Wallet Icon (similar to Lucide Wallet) -->
+  <path d="M75 35H25C21.686 35 19 37.686 19 41V71C19 74.314 21.686 77 25 77H75C78.314 77 81 74.314 81 71V41C81 37.686 78.314 35 75 35Z" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M19 45H81" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M65 59C65 60.1046 64.1046 61 63 61C61.8954 61 61 60.1046 61 59C61 57.8954 61.8954 57 63 57C64.1046 57 65 57.8954 65 59Z" fill="white" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M81 53H63C59.686 53 57 55.686 57 59C57 62.314 59.686 65 63 65H81" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
