@@ -1,0 +1,27 @@
+services:
+  # Backend Node.js Service
+  - type: web
+    name: spendflow-backend
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false # You will manually enter your MongoDB URI in the Render dashboard
+
+  # Frontend Vite Static Site
+  - type: web
+    name: spendflow-frontend
+    env: static
+    rootDir: client/expense-tracker
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: spendflow-backend
+          envVarKey: RENDER_EXTERNAL_URL
