@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Receipt, PieChart, Settings, LogOut } from 'lucide-react';
+import { Home, Receipt, PieChart, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
@@ -9,7 +9,6 @@ export function Sidebar() {
     { name: 'Dashboard', icon: Home, path: '/' },
     { name: 'Expenses', icon: Receipt, path: '/expenses' },
     { name: 'Reports', icon: PieChart, path: '/reports' },
-    { name: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   return (

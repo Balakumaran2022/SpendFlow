@@ -14,7 +14,7 @@ export function ExpenseList({ expenses, onRefresh }) {
       if (onRefresh) onRefresh();
     } catch (error) {
       console.error("Failed to delete expense:", error);
-      alert("Failed to delete expense");
+      alert(`Failed to delete expense: ${error.message || error}`);
     }
   };
 
