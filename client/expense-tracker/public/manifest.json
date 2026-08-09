@@ -1,10 +1,10 @@
 {
-  "short_name": "SpendFlow",
-  "name": "SpendFlow - Premium Expense Tracker",
+  "short_name": "BalaVault",
+  "name": "BalaVault - Premium Expense Tracker",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "type": "image/svg+xml",
+      "src": "/favicon.png",
+      "type": "image/png",
       "sizes": "512x512"
     }
   ],
