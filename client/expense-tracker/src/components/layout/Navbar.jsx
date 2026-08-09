@@ -1,8 +1,6 @@
-import { Plus, Wallet, Bell, Search } from 'lucide-react';
+import { Plus, Wallet, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 export function Navbar({ onAddExpense }) {
   return (
@@ -30,11 +28,6 @@ export function Navbar({ onAddExpense }) {
           </div>
           
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative text-slate-500 hover:text-slate-700 rounded-full">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </Button>
-
             <Button 
               onClick={onAddExpense}
               className="rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-200/50 px-5 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
@@ -42,7 +35,6 @@ export function Navbar({ onAddExpense }) {
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline font-medium">New Expense</span>
             </Button>
-
           </div>
         </div>
       </div>
