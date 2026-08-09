@@ -9,12 +9,12 @@ export function Navbar({ onAddExpense }) {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-6">
             
-            {/* Uploaded Blue Wallet Logo Icon across all places */}
+            {/* Original SVG Logo Icon & Original Color Palette with BalaSpend */}
             <div className="flex items-center gap-2.5">
               <img 
-                src="/logo.png" 
+                src="/favicon.svg" 
                 alt="BalaSpend Logo" 
-                className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-xl shadow-sm transition-transform hover:scale-105" 
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md shadow-blue-500/20 shrink-0 transition-transform hover:scale-105" 
               />
               <span className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight">
                 BalaSpend
