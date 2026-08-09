@@ -75,3 +75,17 @@ export const deleteExpense = async (id) => {
   if (!response.ok) throw new Error('Failed to delete expense');
   return response.json();
 };
+
+export const bulkDeleteExpenses = async (ids) => {
+  memoryCache = null;
+  const response = await fetchWithFallback(`${API_PATH}/bulk-delete`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ ids }),
+  });
+  if (!response.ok) throw new Error('Failed to perform bulk delete');
+  return response.json();
+};
+

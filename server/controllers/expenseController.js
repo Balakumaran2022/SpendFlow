@@ -96,3 +96,31 @@ export const deleteExpense = async (req, res) => {
     });
   }
 };
+
+// Bulk Delete Expenses
+export const deleteBulkExpenses = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide an array of expense IDs to delete",
+      });
+    }
+
+    const result = await Expense.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({
+      success: true,
+      message: `${result.deletedCount} expenses deleted successfully`,
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+

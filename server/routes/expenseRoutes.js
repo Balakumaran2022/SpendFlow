@@ -1,5 +1,5 @@
 import express from "express";
-import { createExpense, getExpenses, updateExpense, deleteExpense } from "../controllers/expenseController.js";
+import { createExpense, getExpenses, updateExpense, deleteExpense, deleteBulkExpenses } from "../controllers/expenseController.js";
 
 const router = express.Router();
 
@@ -8,6 +8,9 @@ router.get("/", getExpenses);
 
 // POST /api/expenses - Create new expense
 router.post("/", createExpense);
+
+// POST /api/expenses/bulk-delete - Bulk delete expenses
+router.post("/bulk-delete", deleteBulkExpenses);
 
 // PUT /api/expenses/:id - Update expense (Full)
 router.put("/:id", updateExpense);
@@ -19,3 +22,4 @@ router.patch("/:id", updateExpense);
 router.delete("/:id", deleteExpense);
 
 export default router;
+
