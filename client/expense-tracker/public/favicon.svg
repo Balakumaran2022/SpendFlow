@@ -1,18 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Gradient Background -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
-    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2563EB" />
-      <stop offset="100%" stop-color="#4F46E5" />
+    <!-- Background Gradient -->
+    <linearGradient id="spendflow-bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="50%" stop-color="#1E1B4B"/>
+      <stop offset="100%" stop-color="#090D16"/>
     </linearGradient>
+
+    <!-- Luxury Mark Gradient -->
+    <linearGradient id="spendflow-gold-cyan" x1="60" y1="60" x2="452" y2="452" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="45%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+
+    <linearGradient id="spendflow-accent" x1="120" y1="120" x2="390" y2="390" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
   </defs>
-  
-  <!-- Rounded Square Background -->
-  <rect width="100" height="100" rx="24" fill="url(#bg-grad)" />
-  
-  <!-- Wallet Icon (similar to Lucide Wallet) -->
-  <path d="M75 35H25C21.686 35 19 37.686 19 41V71C19 74.314 21.686 77 25 77H75C78.314 77 81 74.314 81 71V41C81 37.686 78.314 35 75 35Z" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M19 45H81" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M65 59C65 60.1046 64.1046 61 63 61C61.8954 61 61 60.1046 61 59C61 57.8954 61.8954 57 63 57C64.1046 57 65 57.8954 65 59Z" fill="white" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M81 53H63C59.686 53 57 55.686 57 59C57 62.314 59.686 65 63 65H81" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Squircle Outer Shell -->
+  <rect x="16" y="16" width="480" height="480" rx="128" fill="url(#spendflow-bg)"/>
+  <rect x="16" y="16" width="480" height="480" rx="128" stroke="url(#spendflow-gold-cyan)" stroke-width="8" stroke-opacity="0.3"/>
+
+  <!-- Glowing Emblem -->
+  <g filter="url(#glow)">
+    <!-- S-Flow Wave Luxury Mark -->
+    <path d="M160 176C160 149.49 181.49 128 208 128H304C330.51 128 352 149.49 352 176C352 202.51 330.51 224 304 224H208C181.49 224 160 245.49 160 272C160 298.51 181.49 320 208 320H304C330.51 320 352 341.49 352 368C352 394.51 330.51 416 304 416H208C181.49 416 160 394.51 160 368" stroke="url(#spendflow-gold-cyan)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Central Flow Diamond Node -->
+    <circle cx="256" cy="272" r="32" fill="url(#spendflow-accent)"/>
+    <circle cx="256" cy="272" r="14" fill="#FFFFFF"/>
+  </g>
 </svg>
