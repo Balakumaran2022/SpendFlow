@@ -10,14 +10,12 @@ export function Navbar({ onAddExpense }) {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
               
-              {/* Premium Crystal Clear Logo Container */}
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-slate-950 p-1 flex items-center justify-center shadow-md shadow-amber-500/20 border-2 border-amber-400/90 shrink-0 transition-transform hover:scale-105">
-                <img 
-                  src="/logo.png" 
-                  alt="BalaVault Logo" 
-                  className="w-full h-full object-contain rounded-xl" 
-                />
-              </div>
+              {/* Clean Logo Image - No Outer Border Container */}
+              <img 
+                src="/logo.png" 
+                alt="BalaVault Logo" 
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 transition-transform hover:scale-105" 
+              />
 
               {/* Distinctive Dual-Color Brand Title */}
               <div className="flex flex-col">
