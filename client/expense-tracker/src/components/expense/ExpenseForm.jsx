@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createExpense, updateExpense } from '../../services/api';
+import { 
+  Utensils, 
+  Plane, 
+  ShoppingBag, 
+  FileText, 
+  HeartPulse, 
+  Film, 
+  MoreHorizontal
+} from "lucide-react";
 
 export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
   const [loading, setLoading] = useState(false);
@@ -67,11 +76,11 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
         setFormData({ title: '', amount: '', category: '', description: '' });
       }
       
-      // Refresh the dashboard list
+      // Refresh dashboard list
       window.dispatchEvent(new Event('expenseAdded'));
       if (onRefresh) onRefresh();
       
-      // Close the modal
+      // Close modal
       onClose();
     } catch (error) {
       console.error(isEditMode ? "Failed to update expense:" : "Failed to add expense:", error);
@@ -83,52 +92,117 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px] bg-white text-slate-900 border-slate-200 shadow-xl rounded-2xl">
+      <DialogContent className="sm:max-w-[425px] bg-white text-slate-900 border-slate-200 shadow-2xl rounded-2xl p-6">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-slate-900">
               {isEditMode ? "Edit Expense" : "Add New Expense"}
             </DialogTitle>
-            <DialogDescription className="text-slate-500">
+            <DialogDescription className="text-slate-500 text-xs mt-1">
               {isEditMode 
                 ? "Update the details of your expense below. Click save when you're done." 
                 : "Enter the details of your expense here. Click save when you're done."}
             </DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <label htmlFor="title" className="text-sm font-medium text-slate-700">Title</label>
-              <Input id="title" value={formData.title} onChange={handleChange} required placeholder="e.g. Lunch with team" />
+            <div className="grid gap-1.5">
+              <label htmlFor="title" className="text-xs font-semibold text-slate-700">Title</label>
+              <Input 
+                id="title" 
+                value={formData.title} 
+                onChange={handleChange} 
+                required 
+                placeholder="e.g. Team Lunch / Grocery" 
+                className="bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-11"
+              />
             </div>
-            <div className="grid gap-2">
-              <label htmlFor="amount" className="text-sm font-medium text-slate-700">Amount (₹)</label>
-              <Input id="amount" value={formData.amount} onChange={handleChange} required type="number" min="0" step="0.01" placeholder="0.00" />
+
+            <div className="grid gap-1.5">
+              <label htmlFor="amount" className="text-xs font-semibold text-slate-700">Amount (₹)</label>
+              <Input 
+                id="amount" 
+                value={formData.amount} 
+                onChange={handleChange} 
+                required 
+                type="number" 
+                min="0" 
+                step="0.01" 
+                placeholder="0.00" 
+                className="bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-11 font-semibold"
+              />
             </div>
-            <div className="grid gap-2">
-              <label htmlFor="category" className="text-sm font-medium text-slate-700">Category</label>
+
+            <div className="grid gap-1.5">
+              <label htmlFor="category" className="text-xs font-semibold text-slate-700">Category</label>
               <Select value={formData.category} onValueChange={handleCategoryChange} required>
-                <SelectTrigger>
+                <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-11 px-3.5 text-slate-800 font-medium">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
-                <SelectContent className="bg-white z-[100] shadow-lg border border-slate-200 text-slate-900">
-                  <SelectItem value="Food">Food</SelectItem>
-                  <SelectItem value="Travel">Travel</SelectItem>
-                  <SelectItem value="Shopping">Shopping</SelectItem>
-                  <SelectItem value="Bills">Bills</SelectItem>
-                  <SelectItem value="Health">Health</SelectItem>
-                  <SelectItem value="Entertainment">Entertainment</SelectItem>
-                  <SelectItem value="Others">Others</SelectItem>
+                <SelectContent className="bg-white z-[100] shadow-2xl border border-slate-200 text-slate-800 rounded-2xl p-1.5 min-w-[200px]">
+                  <SelectItem value="Food" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
+                    <span className="flex items-center gap-2">
+                      <Utensils className="w-4 h-4 text-amber-500" />
+                      Food
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="Travel" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
+                    <span className="flex items-center gap-2">
+                      <Plane className="w-4 h-4 text-sky-500" />
+                      Travel
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="Shopping" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
+                    <span className="flex items-center gap-2">
+                      <ShoppingBag className="w-4 h-4 text-pink-500" />
+                      Shopping
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="Bills" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
+                    <span className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-emerald-500" />
+                      Bills
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="Health" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
+                    <span className="flex items-center gap-2">
+                      <HeartPulse className="w-4 h-4 text-red-500" />
+                      Health
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="Entertainment" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
+                    <span className="flex items-center gap-2">
+                      <Film className="w-4 h-4 text-purple-500" />
+                      Entertainment
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="Others" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
+                    <span className="flex items-center gap-2">
+                      <MoreHorizontal className="w-4 h-4 text-slate-500" />
+                      Others
+                    </span>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid gap-2">
-              <label htmlFor="description" className="text-sm font-medium text-slate-700">Notes</label>
-              <Textarea id="description" value={formData.description} onChange={handleChange} placeholder="Optional details..." className="resize-none" />
+
+            <div className="grid gap-1.5">
+              <label htmlFor="description" className="text-xs font-semibold text-slate-700">Notes / Description</label>
+              <Textarea 
+                id="description" 
+                value={formData.description} 
+                onChange={handleChange} 
+                placeholder="Add optional notes..." 
+                className="resize-none bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-20 text-xs" 
+              />
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} className="rounded-xl" disabled={loading}>Cancel</Button>
-            <Button type="submit" className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={onClose} className="rounded-xl border-slate-200" disabled={loading}>
+              Cancel
+            </Button>
+            <Button type="submit" className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-200" disabled={loading}>
               {loading ? "Saving..." : (isEditMode ? "Save Changes" : "Save Expense")}
             </Button>
           </DialogFooter>
