@@ -1,4 +1,4 @@
-import { Plus, Wallet, Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
@@ -9,11 +9,13 @@ export function Navbar({ onAddExpense }) {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-6">
             
-            {/* Original Wallet Logo Icon & Original Color Palette with BalaSpend */}
+            {/* Custom Uploaded Golden Logo Icon & Original Color Palette with BalaSpend */}
             <div className="flex items-center gap-2.5">
-              <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-xl shadow-lg shadow-blue-200">
-                <Wallet className="w-5 h-5 text-white" />
-              </div>
+              <img 
+                src="/logo.png" 
+                alt="BalaSpend Logo" 
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shadow-sm transition-transform hover:scale-105" 
+              />
               <span className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight">
                 BalaSpend
               </span>
