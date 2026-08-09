@@ -44,6 +44,10 @@ const expenseSchema = new mongoose.Schema(
   }
 );
 
+// Indexes for ultra-fast query performance
+expenseSchema.index({ date: -1 });
+expenseSchema.index({ category: 1, date: -1 });
+
 const Expense = mongoose.model("Expense", expenseSchema);
 
 export default Expense;

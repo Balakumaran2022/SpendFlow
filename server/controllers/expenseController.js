@@ -3,7 +3,8 @@ import Expense from "../models/Expense.js";
 // Get All Expenses
 export const getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find().sort({ date: -1 });
+    const expenses = await Expense.find().sort({ date: -1 }).lean();
+    res.setHeader("Cache-Control", "no-cache");
     res.status(200).json({
       success: true,
       count: expenses.length,
