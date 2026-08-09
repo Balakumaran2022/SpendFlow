@@ -72,7 +72,7 @@ export default function Reports() {
     // Header Branding
     doc.setFontSize(22);
     doc.setTextColor(37, 99, 235); // #2563EB Blue
-    doc.text("BalaVault Financial Report", 14, 20);
+    doc.text("BalaSpend Financial Report", 14, 20);
     
     doc.setFontSize(10);
     doc.setTextColor(100, 116, 139);
@@ -144,10 +144,10 @@ export default function Reports() {
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
-      doc.text(`BalaVault App - Page ${i} of ${pageCount}`, 14, doc.internal.pageSize.height - 10);
+      doc.text(`BalaSpend App - Page ${i} of ${pageCount}`, 14, doc.internal.pageSize.height - 10);
     }
     
-    doc.save(`BalaVault_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+    doc.save(`BalaSpend_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   return (
