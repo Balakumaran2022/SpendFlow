@@ -179,15 +179,17 @@ export default function Register() {
             <label className="text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Full Name <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <div className="relative flex items-center w-full">
+              <div className="absolute left-3.5 inset-y-0 flex items-center pointer-events-none text-slate-400">
+                <UserIcon className="w-4 h-4 shrink-0" />
+              </div>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Full Name"
-                className="w-full pl-10 pr-4 py-2.5 sm:py-3 h-10 sm:h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
+                className="w-full pl-10 pr-4 py-2.5 sm:py-3 h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
               />
             </div>
           </div>
@@ -197,15 +199,17 @@ export default function Register() {
             <label className="text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Email Address <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <div className="relative flex items-center w-full">
+              <div className="absolute left-3.5 inset-y-0 flex items-center pointer-events-none text-slate-400">
+                <Mail className="w-4 h-4 shrink-0" />
+              </div>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full pl-10 pr-4 py-2.5 sm:py-3 h-10 sm:h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
+                className="w-full pl-10 pr-4 py-2.5 sm:py-3 h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
               />
             </div>
           </div>
@@ -215,8 +219,10 @@ export default function Register() {
             <label className="text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Password <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <div className="relative flex items-center w-full">
+              <div className="absolute left-3.5 inset-y-0 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-4 h-4 shrink-0" />
+              </div>
               <input
                 type={showPassword ? "text" : "password"}
                 required
@@ -224,15 +230,15 @@ export default function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 characters"
-                className="w-full pl-10 pr-11 py-2.5 sm:py-3 h-10 sm:h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
+                className="w-full pl-10 pr-11 py-2.5 sm:py-3 h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 title={showPassword ? "Hide Password" : "Show Password"}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 border-0 bg-transparent cursor-pointer"
+                className="absolute right-3.5 inset-y-0 flex items-center text-slate-400 hover:text-slate-600 p-1 border-0 bg-transparent cursor-pointer"
               >
-                {showPassword ? <EyeOff className="w-4 h-4 text-slate-600" /> : <Eye className="w-4 h-4 text-slate-400" />}
+                {showPassword ? <EyeOff className="w-4 h-4 text-slate-600 shrink-0" /> : <Eye className="w-4 h-4 text-slate-400 shrink-0" />}
               </button>
             </div>
           </div>
@@ -242,8 +248,10 @@ export default function Register() {
             <label className="text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Confirm Password <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <div className="relative flex items-center w-full">
+              <div className="absolute left-3.5 inset-y-0 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-4 h-4 shrink-0" />
+              </div>
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 required
@@ -251,15 +259,15 @@ export default function Register() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-enter password"
-                className="w-full pl-10 pr-11 py-2.5 sm:py-3 h-10 sm:h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
+                className="w-full pl-10 pr-11 py-2.5 sm:py-3 h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 title={showConfirmPassword ? "Hide Password" : "Show Password"}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 border-0 bg-transparent cursor-pointer"
+                className="absolute right-3.5 inset-y-0 flex items-center text-slate-400 hover:text-slate-600 p-1 border-0 bg-transparent cursor-pointer"
               >
-                {showConfirmPassword ? <EyeOff className="w-4 h-4 text-slate-600" /> : <Eye className="w-4 h-4 text-slate-400" />}
+                {showConfirmPassword ? <EyeOff className="w-4 h-4 text-slate-600 shrink-0" /> : <Eye className="w-4 h-4 text-slate-400 shrink-0" />}
               </button>
             </div>
           </div>
@@ -273,15 +281,17 @@ export default function Register() {
               </span>
             </label>
             
-            <div className="relative">
-              <Database className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <div className="relative flex items-center w-full">
+              <div className="absolute left-3.5 inset-y-0 flex items-center pointer-events-none text-slate-400">
+                <Database className="w-4 h-4 shrink-0" />
+              </div>
               <input
                 type="text"
                 required
                 value={mongoUri}
                 onChange={(e) => setMongoUri(e.target.value)}
                 placeholder="mongodb+srv://username:password@cluster.mongodb.net/dbname"
-                className="w-full pl-10 pr-4 py-2.5 sm:py-3 h-10 sm:h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs text-slate-900 placeholder-slate-400 outline-none transition-all font-mono"
+                className="w-full pl-10 pr-4 py-2.5 sm:py-3 h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs text-slate-900 placeholder-slate-400 outline-none transition-all font-mono"
               />
             </div>
             

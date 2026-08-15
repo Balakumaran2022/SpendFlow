@@ -57,19 +57,23 @@ export default function Login() {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
+          
+          {/* Email Address */}
           <div className="space-y-1 sm:space-y-1.5">
             <label className="text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Email Address
             </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <div className="relative flex items-center w-full">
+              <div className="absolute left-3.5 inset-y-0 flex items-center pointer-events-none text-slate-400">
+                <Mail className="w-4 h-4 shrink-0" />
+              </div>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full pl-10 pr-4 py-2.5 sm:py-3 h-10 sm:h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
+                className="w-full pl-10 pr-4 py-2.5 sm:py-3 h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
               />
             </div>
           </div>
@@ -79,23 +83,25 @@ export default function Login() {
             <label className="text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Password
             </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <div className="relative flex items-center w-full">
+              <div className="absolute left-3.5 inset-y-0 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-4 h-4 shrink-0" />
+              </div>
               <input
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-11 py-2.5 sm:py-3 h-10 sm:h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
+                className="w-full pl-10 pr-11 py-2.5 sm:py-3 h-11 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 title={showPassword ? "Hide Password" : "Show Password"}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 border-0 bg-transparent cursor-pointer"
+                className="absolute right-3.5 inset-y-0 flex items-center text-slate-400 hover:text-slate-600 p-1 border-0 bg-transparent cursor-pointer"
               >
-                {showPassword ? <EyeOff className="w-4 h-4 text-slate-600" /> : <Eye className="w-4 h-4 text-slate-400" />}
+                {showPassword ? <EyeOff className="w-4 h-4 text-slate-600 shrink-0" /> : <Eye className="w-4 h-4 text-slate-400 shrink-0" />}
               </button>
             </div>
           </div>
