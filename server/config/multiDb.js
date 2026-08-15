@@ -3,17 +3,21 @@ import Expense from '../models/Expense.js';
 
 const connectionMap = new Map();
 
+// Strict MongoDB Atlas Connection URL Regex
+export const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[^\s\/]+(\/[^\s?]*)?(\?.*)?$/;
+
 /**
  * Test a MongoDB connection URL to verify if it connects successfully
  */
 export const testMongoConnection = async (mongoUri) => {
   if (!mongoUri || typeof mongoUri !== 'string') {
-    throw new Error('Please provide a valid MongoDB connection string');
+    throw new Error('Please provide a valid MongoDB Atlas connection string');
   }
 
   const trimmedUri = mongoUri.trim();
-  if (!trimmedUri.startsWith('mongodb://') && !trimmedUri.startsWith('mongodb+srv://')) {
-    throw new Error('MongoDB URL must start with mongodb:// or mongodb+srv://');
+  
+  if (!MONGO_ATLAS_REGEX.test(trimmedUri)) {
+    throw new Error('Invalid MongoDB Atlas URL format! Must match pattern mongodb+srv://user:pass@cluster.mongodb.net/dbname');
   }
 
   let tempConn;
@@ -63,7 +67,6 @@ export const getExpenseModelForUser = async (user) => {
     return conn.model('Expense', Expense.schema);
   } catch (err) {
     console.error(`Failed to connect to user custom MongoDB Atlas (${user.email}):`, err.message);
-    // Fallback to default Expense model if connection fails
     return Expense;
   }
 };
