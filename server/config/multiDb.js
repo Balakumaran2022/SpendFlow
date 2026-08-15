@@ -38,7 +38,6 @@ export const sanitizeMongoUri = (uri) => {
 // Flexible MongoDB Atlas Connection URL Regex (Supports passwords with @ or special characters)
 export const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:.+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}(\/[^\s?]*)?(\?.*)?$/;
 
-
 /**
  * Get or establish Mongoose connection for a given MongoDB URI
  */
@@ -53,8 +52,8 @@ export const getCustomConnection = async (mongoUri) => {
 
   try {
     const conn = await mongoose.createConnection(uri, {
-      serverSelectionTimeoutMS: 3000,
-      connectTimeoutMS: 3000,
+      serverSelectionTimeoutMS: 6000,
+      connectTimeoutMS: 6000,
     }).asPromise();
 
     connectionMap.set(uri, conn);
@@ -82,12 +81,12 @@ export const testMongoConnection = async (mongoUri) => {
   let tempConn;
   try {
     tempConn = await mongoose.createConnection(sanitizedUri, {
-      serverSelectionTimeoutMS: 3000,
-      connectTimeoutMS: 3000,
+      serverSelectionTimeoutMS: 6000,
+      connectTimeoutMS: 6000,
     }).asPromise();
 
-    // Verify database ping
-    await tempConn.db.admin().ping();
+    // Verify database ping command directly on target database (works for non-admin user roles)
+    await tempConn.db.command({ ping: 1 });
     await tempConn.close();
     return true;
   } catch (err) {
