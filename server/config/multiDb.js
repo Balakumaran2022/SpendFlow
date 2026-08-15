@@ -53,8 +53,8 @@ export const getCustomConnection = async (mongoUri) => {
 
   try {
     const conn = await mongoose.createConnection(uri, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 3000,
+      connectTimeoutMS: 3000,
     }).asPromise();
 
     connectionMap.set(uri, conn);
@@ -82,8 +82,8 @@ export const testMongoConnection = async (mongoUri) => {
   let tempConn;
   try {
     tempConn = await mongoose.createConnection(sanitizedUri, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 3000,
+      connectTimeoutMS: 3000,
     }).asPromise();
 
     // Verify database ping

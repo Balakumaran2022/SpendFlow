@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert, LogIn } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert, LogIn, Loader2 } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -22,10 +22,8 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  // MongoDB Atlas Connection URL Regex (Supports passwords with @ or special characters)
+  // Flexible MongoDB Atlas Connection URL Regex (Supports passwords with @ or special characters)
   const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:.+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}(\/[^\s?]*)?(\?.*)?$/;
-
-
 
   const triggerError = (msg) => {
     setError(msg);
@@ -305,11 +303,14 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm shadow-md hover:bg-blue-700 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer border-0 mt-3"
+            style={{ backgroundColor: loading ? '#3b82f6' : '#2563eb', color: '#ffffff' }}
+            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm shadow-md hover:bg-blue-700 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer border-0 mt-3 disabled:opacity-90 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <span>Verifying Connection & Creating Account...</span>
+              <div className="flex items-center justify-center gap-2 text-white font-bold">
+                <Loader2 className="w-5 h-5 animate-spin text-white shrink-0" />
+                <span>Connecting & Creating Account...</span>
+              </div>
             ) : (
               <>
                 <UserPlus className="w-4 h-4 stroke-[3]" style={{ color: '#ffffff' }} />
