@@ -38,6 +38,12 @@ const expenseSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
   },
   {
     timestamps: true,
@@ -45,8 +51,10 @@ const expenseSchema = new mongoose.Schema(
 );
 
 // Indexes for ultra-fast query performance
+expenseSchema.index({ user: 1, date: -1 });
 expenseSchema.index({ date: -1 });
 expenseSchema.index({ category: 1, date: -1 });
+
 
 const Expense = mongoose.model("Expense", expenseSchema);
 

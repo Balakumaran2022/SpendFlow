@@ -29,14 +29,15 @@ export function MobileBottomNav({ onAddExpense }) {
         <span className="truncate w-full text-center tracking-tighter">Expenses</span>
       </Link>
 
-      {/* Prominent Central Floating "+ Add" Button */}
+      {/* Prominent Central Floating "+ Add" Button with Explicit Inline Gradient */}
       <button
         type="button"
         onClick={onAddExpense}
-        className="flex flex-col items-center justify-center -mt-5 mx-1 bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-90 text-white rounded-full p-3 shadow-lg shadow-blue-500/40 border-2 border-white transition-all cursor-pointer shrink-0"
+        style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', color: '#ffffff' }}
+        className="flex flex-col items-center justify-center -mt-5 mx-1 active:scale-90 rounded-full p-3 shadow-lg shadow-blue-500/40 border-2 border-white transition-all cursor-pointer shrink-0"
         title="Add Expense"
       >
-        <Plus className="w-5 h-5 stroke-[3]" />
+        <Plus className="w-5 h-5 stroke-[3]" style={{ color: '#ffffff' }} />
       </button>
 
       <Link
@@ -63,5 +64,3 @@ export function MobileBottomNav({ onAddExpense }) {
     </div>
   );
 }
-
-

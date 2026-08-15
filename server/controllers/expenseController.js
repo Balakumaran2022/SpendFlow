@@ -1,9 +1,10 @@
 import Expense from "../models/Expense.js";
 
-// Get All Expenses
+// Get All Expenses for logged in user
 export const getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find().sort({ date: -1 }).lean();
+    const query = req.user ? { user: req.user._id } : {};
+    const expenses = await Expense.find(query).sort({ date: -1 }).lean();
     res.setHeader("Cache-Control", "no-cache");
     res.status(200).json({
       success: true,
@@ -18,7 +19,7 @@ export const getExpenses = async (req, res) => {
   }
 };
 
-// Create Expense
+// Create Expense for logged in user
 export const createExpense = async (req, res) => {
   try {
     const { title, amount, category, date, description } = req.body;
@@ -29,6 +30,7 @@ export const createExpense = async (req, res) => {
       category,
       date,
       description,
+      user: req.user ? req.user._id : undefined,
     });
 
     res.status(201).json({
@@ -50,14 +52,16 @@ export const updateExpense = async (req, res) => {
     const { id } = req.params;
     const { title, amount, category, date, description } = req.body;
 
-    const expense = await Expense.findByIdAndUpdate(
-      id,
+    const filter = req.user ? { _id: id, user: req.user._id } : { _id: id };
+
+    const expense = await Expense.findOneAndUpdate(
+      filter,
       { title, amount, category, date, description },
       { new: true, runValidators: true }
     );
 
     if (!expense) {
-      return res.status(404).json({ success: false, message: "Expense not found" });
+      return res.status(404).json({ success: false, message: "Expense not found or unauthorized" });
     }
 
     res.status(200).json({
@@ -77,11 +81,12 @@ export const updateExpense = async (req, res) => {
 export const deleteExpense = async (req, res) => {
   try {
     const { id } = req.params;
+    const filter = req.user ? { _id: id, user: req.user._id } : { _id: id };
 
-    const expense = await Expense.findByIdAndDelete(id);
+    const expense = await Expense.findOneAndDelete(filter);
 
     if (!expense) {
-      return res.status(404).json({ success: false, message: "Expense not found" });
+      return res.status(404).json({ success: false, message: "Expense not found or unauthorized" });
     }
 
     res.status(200).json({
@@ -109,7 +114,11 @@ export const deleteBulkExpenses = async (req, res) => {
       });
     }
 
-    const result = await Expense.deleteMany({ _id: { $in: ids } });
+    const filter = req.user
+      ? { _id: { $in: ids }, user: req.user._id }
+      : { _id: { $in: ids } };
+
+    const result = await Expense.deleteMany(filter);
 
     res.status(200).json({
       success: true,
@@ -123,4 +132,3 @@ export const deleteBulkExpenses = async (req, res) => {
     });
   }
 };
-
