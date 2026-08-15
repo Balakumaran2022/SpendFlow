@@ -35,8 +35,9 @@ export const sanitizeMongoUri = (uri) => {
   }
 };
 
-// Flexible MongoDB Atlas Connection URL Regex
-export const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}(\/[^\s?]*)?(\?.*)?$/;
+// Flexible MongoDB Atlas Connection URL Regex (Supports passwords with @ or special characters)
+export const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:.+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}(\/[^\s?]*)?(\?.*)?$/;
+
 
 /**
  * Get or establish Mongoose connection for a given MongoDB URI

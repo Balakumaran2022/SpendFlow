@@ -22,8 +22,9 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  // Strict MongoDB Atlas Connection URL Regex (Requires valid username, password & domain host like .mongodb.net)
-  const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}(\/[^\s?]*)?(\?.*)?$/;
+  // MongoDB Atlas Connection URL Regex (Supports passwords with @ or special characters)
+  const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:.+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}(\/[^\s?]*)?(\?.*)?$/;
+
 
 
   const triggerError = (msg) => {
