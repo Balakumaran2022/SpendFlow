@@ -323,52 +323,62 @@ export default function BulkDelete() {
         </CardContent>
       </Card>
 
-      {/* Action & Selection Banner */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-4 text-white shadow-lg space-y-3 md:space-y-0 md:flex md:items-center md:justify-between">
+      {/* Action & Selection Banner - High-Contrast Explicit Dark Styling */}
+      <div 
+        style={{ backgroundColor: '#0f172a', color: '#ffffff' }}
+        className="rounded-2xl p-4 text-white shadow-xl space-y-3 md:space-y-0 md:flex md:items-center md:justify-between border border-slate-800"
+      >
         
         {/* Stats Section */}
         <div className="space-y-1 text-xs sm:text-sm">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-slate-300">
-            <span>Showing: <strong className="text-white font-bold">{filteredExpenses.length}</strong> items</span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5" style={{ color: '#cbd5e1' }}>
+            <span>Showing: <strong style={{ color: '#ffffff' }} className="font-bold">{filteredExpenses.length}</strong> items</span>
             <span>•</span>
-            <span>Total: <strong className="text-emerald-400 font-bold">₹{totalFilteredAmount.toLocaleString('en-IN')}</strong></span>
+            <span>Total: <strong style={{ color: '#34d399' }} className="font-extrabold">₹{totalFilteredAmount.toLocaleString('en-IN')}</strong></span>
           </div>
-          <div className="text-xs text-slate-400">
-            Selected: <span className="text-red-400 font-bold">{selectedIds.length}</span> items (<span className="text-red-400 font-bold">₹{totalSelectedAmount.toLocaleString('en-IN')}</span>)
+          <div className="text-xs" style={{ color: '#94a3b8' }}>
+            Selected: <span style={{ color: '#f87171' }} className="font-bold">{selectedIds.length}</span> items (<span style={{ color: '#f87171' }} className="font-bold">₹{totalSelectedAmount.toLocaleString('en-IN')}</span>)
           </div>
         </div>
 
-        {/* Buttons for Desktop & Mobile Header */}
+        {/* Action Buttons for Select All & Bulk Delete */}
         <div className="flex items-center gap-2 sm:gap-3">
           
           {/* SELECT ALL TOGGLE */}
-          <Button
+          <button
             type="button"
             onClick={toggleSelectAll}
             disabled={filteredExpenses.length === 0}
-            className={`flex-1 sm:flex-initial rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 h-10 ${
-              isAllSelected 
-                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-900/40' 
-                : 'bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700'
-            }`}
+            style={{
+              backgroundColor: isAllSelected ? '#2563eb' : '#334155',
+              color: '#ffffff',
+              borderColor: 'transparent'
+            }}
+            className="flex-1 sm:flex-initial rounded-xl px-4 py-2.5 text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center gap-1.5 h-10 border-0 cursor-pointer active:scale-95 disabled:opacity-50"
           >
-            {isAllSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-slate-400" />}
+            {isAllSelected ? <CheckSquare className="w-4 h-4" style={{ color: '#ffffff' }} /> : <Square className="w-4 h-4" style={{ color: '#94a3b8' }} />}
             <span>{isAllSelected ? "DESELECT ALL" : "SELECT ALL"}</span>
-          </Button>
+          </button>
 
           {/* BULK DELETE BUTTON */}
-          <Button
+          <button
             type="button"
             disabled={selectedIds.length === 0 || isDeleting}
             onClick={() => setShowConfirmModal(true)}
-            className="flex-1 sm:flex-initial rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/30 px-4 py-2 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 h-10 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+            style={{
+              backgroundColor: selectedIds.length > 0 ? '#dc2626' : '#64748b',
+              color: '#ffffff',
+              borderColor: 'transparent'
+            }}
+            className="flex-1 sm:flex-initial rounded-xl shadow-lg px-4 py-2.5 text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 h-10 transition-all border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-4 h-4" style={{ color: '#ffffff' }} />
             <span>BULK DELETE ({selectedIds.length})</span>
-          </Button>
+          </button>
 
         </div>
       </div>
+
 
       {/* Expense List View */}
       <Card className="rounded-2xl border border-slate-200/80 shadow-sm bg-white overflow-hidden">

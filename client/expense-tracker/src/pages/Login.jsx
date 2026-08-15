@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, LogIn, AlertCircle, ArrowRight } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle, ArrowRight, Wallet } from 'lucide-react';
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -33,9 +34,13 @@ export default function Login() {
         
         {/* App Logo & Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-50 border border-blue-100 rounded-2xl shadow-xs mb-2">
-            <img src="/favicon.svg" alt="Logo" className="w-9 h-9" />
+          <div 
+            style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
+            className="inline-flex items-center justify-center w-14 h-14 rounded-2xl shadow-md shadow-blue-500/30 mb-2 mx-auto"
+          >
+            <Wallet className="w-7 h-7 stroke-[2.5]" style={{ color: '#ffffff' }} />
           </div>
+
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
             BalaSpend
           </h1>

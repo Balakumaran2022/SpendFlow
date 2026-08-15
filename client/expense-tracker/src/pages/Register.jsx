@@ -53,9 +53,13 @@ export default function Register() {
         
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-50 border border-blue-100 rounded-2xl shadow-xs mb-2">
-            <UserPlus className="w-7 h-7 text-blue-600" />
+          <div 
+            style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
+            className="inline-flex items-center justify-center w-14 h-14 rounded-2xl shadow-md shadow-blue-500/30 mb-2 mx-auto"
+          >
+            <UserPlus className="w-7 h-7 stroke-[2.5]" style={{ color: '#ffffff' }} />
           </div>
+
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
             Create Account
           </h1>

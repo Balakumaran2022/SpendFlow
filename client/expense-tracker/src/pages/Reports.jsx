@@ -205,13 +205,15 @@ export default function Reports() {
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: '#64748b', fontSize: 11 }} 
-                    width={50}
-                    tickFormatter={(value) => `₹${Intl.NumberFormat('en-IN', { notation: 'compact', maximumFractionDigits: 1 }).format(value)}`} 
+                    width={55}
+                    tickFormatter={(value) => value >= 1000 ? `₹${(value / 1000).toFixed(1)}k` : `₹${value}`} 
                   />
                   <Tooltip 
                     cursor={{ fill: '#f8fafc' }}
                     contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} 
+                    formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Total Spent']}
                   />
+
                   <Bar dataKey="total" fill="#2563EB" radius={[6, 6, 0, 0]} barSize={32} />
                 </BarChart>
               </ResponsiveContainer>
