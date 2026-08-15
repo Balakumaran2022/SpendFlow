@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Expense from '../models/Expense.js';
-import { testMongoConnection, getUserModelForUri } from '../config/multiDb.js';
+import { testMongoConnection, getUserModelForUri, sanitizeMongoUri } from '../config/multiDb.js';
 
 const generateToken = (id, mongoUri = '') => {
   return jwt.sign({ id, mongoUri }, process.env.JWT_SECRET || 'balaspend_secret_key_123', {
@@ -52,7 +52,7 @@ export const registerUser = async (req, res) => {
     }
 
     const trimmedEmail = email.toLowerCase().trim();
-    const trimmedUri = mongoUri.trim();
+    const trimmedUri = sanitizeMongoUri(mongoUri.trim());
 
     // Validate format & test connection to user-provided MongoDB Atlas URL
     try {
