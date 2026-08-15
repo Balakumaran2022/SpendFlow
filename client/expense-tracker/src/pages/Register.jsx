@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert, X } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -14,7 +14,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
-  // Security Notice Modal State (Shown before revealing registration form)
+  // Security Notice Modal State
   const [showNoticeModal, setShowNoticeModal] = useState(true);
 
   const [error, setError] = useState('');
@@ -22,8 +22,13 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  // MongoDB Atlas Connection URL Regex
+  // Strict MongoDB Atlas Connection URL Regex
   const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[^\s\/]+(\/[^\s?]*)?(\?.*)?$/;
+
+  const triggerError = (msg) => {
+    setError(msg);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,23 +36,23 @@ export default function Register() {
 
     // Ensure required basic fields
     if (!name.trim() || !email.trim() || !password || !confirmPassword) {
-      setError('Name, Email, Password, and Confirm Password are required.');
+      triggerError('All fields (Full Name, Email, Password, and Confirm Password) are required.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match. Please verify your passwords.');
+      triggerError('Passwords do not match. Please re-enter your passwords.');
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+      triggerError('Password must be at least 6 characters long.');
       return;
     }
 
-    // IF CUSTOM MONGODB ATLAS URL IS PROVIDED, VALIDATE REGEX
+    // IF MONGODB ATLAS URL IS ENTERED, CHECK REGEX FORMAT
     if (mongoUri.trim() && !MONGO_ATLAS_REGEX.test(mongoUri.trim())) {
-      setError('Invalid MongoDB Atlas URL format! Must be a valid connection string (e.g. mongodb+srv://username:password@cluster.mongodb.net/dbname)');
+      triggerError('Invalid MongoDB Atlas URL format! A valid URL must include username, password, and hostname (e.g. mongodb+srv://username:password@cluster.mongodb.net/dbname). If you do not have one, click "Clear URL" below.');
       return;
     }
 
@@ -56,7 +61,7 @@ export default function Register() {
       await register(name.trim(), email.trim(), password, mongoUri.trim());
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Registration failed. Please check your credentials or MongoDB Atlas URL.');
+      triggerError(err.message || 'Registration failed. Please check your credentials or MongoDB Atlas URL.');
     } finally {
       setLoading(false);
     }
@@ -65,12 +70,11 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center items-center px-4 py-8 relative">
       
-      {/* 1. NO FORGOT PASSWORD SECURITY NOTICE MODAL DIALOG */}
+      {/* 1. SECURITY NOTICE MODAL DIALOG */}
       {showNoticeModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="bg-white border border-slate-200 max-w-md w-full rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 text-slate-900">
             
-            {/* Modal Icon & Header */}
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
                 <ShieldAlert className="w-6 h-6 stroke-[2.5]" />
@@ -83,7 +87,6 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Warning Message Box */}
             <div className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 text-xs text-amber-900 space-y-2">
               <p className="font-bold flex items-center gap-1.5 text-amber-800 text-sm">
                 ⚠️ No Password Reset Option
@@ -96,7 +99,6 @@ export default function Register() {
               </p>
             </div>
 
-            {/* Action Buttons: Cancel (Go Back to Login) vs OK (Show Form) */}
             <div className="flex items-center gap-3 pt-1">
               <button
                 type="button"
@@ -120,7 +122,7 @@ export default function Register() {
         </div>
       )}
 
-      {/* 2. Clean White Simple Registration Card (Visible after acknowledging notice) */}
+      {/* 2. Registration Card */}
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
         
         {/* Header */}
@@ -137,11 +139,14 @@ export default function Register() {
           <p className="text-xs sm:text-sm text-slate-500">Register your personal expense workspace</p>
         </div>
 
-        {/* Error notification */}
+        {/* Top Error Notification */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-3.5 text-xs text-red-700 font-semibold flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-            <span>{error}</span>
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-xs text-red-700 font-semibold space-y-1 animate-in slide-in-from-top-2">
+            <div className="flex items-center gap-2 font-bold text-red-800">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>Registration Error:</span>
+            </div>
+            <p className="pl-6 text-[11px] leading-relaxed text-red-600">{error}</p>
           </div>
         )}
 
@@ -184,7 +189,7 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Password with Eye View Password Toggle */}
+          {/* Password with Eye View Toggle */}
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Password <span className="text-red-500">*</span>
@@ -211,7 +216,7 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Confirm Password with Eye View Password Toggle */}
+          {/* Confirm Password with Eye View Toggle */}
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Confirm Password <span className="text-red-500">*</span>
@@ -238,28 +243,50 @@ export default function Register() {
             </div>
           </div>
 
-          {/* CUSTOM MONGO ATLAS URL FIELD */}
+          {/* MONGODB ATLAS URL FIELD WITH 1-CLICK CLEAR BUTTON */}
           <div className="space-y-1 pt-1">
-            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                 <DatabaseZap className="w-3.5 h-3.5 text-indigo-600" />
-                MongoDB Atlas URL <span className="text-red-500">*</span>
-              </span>
-            </label>
+                MongoDB Atlas URL
+              </label>
+              {mongoUri && (
+                <button
+                  type="button"
+                  onClick={() => setMongoUri('')}
+                  className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-0.5 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full cursor-pointer border-0"
+                >
+                  <X className="w-3 h-3" /> Clear (Use Default)
+                </button>
+              )}
+            </div>
+            
             <div className="relative">
               <Database className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={mongoUri}
                 onChange={(e) => setMongoUri(e.target.value)}
-                placeholder="mongodb+srv://user:pass@cluster.mongodb.net/dbname"
+                placeholder="mongodb+srv://username:password@cluster.mongodb.net/dbname"
                 className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-mono"
               />
             </div>
+            
             <p className="text-[11px] text-slate-500 pl-1 leading-snug">
-              If provided, account and expenses are stored 100% separately inside your private MongoDB database.
+              Optional: Leave empty for standard cloud storage. If entered, MUST be a complete connection string: <code className="text-indigo-600 font-mono">mongodb+srv://user:pass@cluster...</code>
             </p>
           </div>
+
+          {/* Bottom Error Notification (Immediately above Submit Button) */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-3 text-xs text-red-700 font-semibold space-y-1 mt-2">
+              <div className="flex items-center gap-1.5 font-bold text-red-800">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>Fix Required:</span>
+              </div>
+              <p className="text-[11px] leading-relaxed text-red-600">{error}</p>
+            </div>
+          )}
 
           <button
             type="submit"

@@ -44,7 +44,7 @@ export const testMongoConnection = async (mongoUri) => {
   const trimmedUri = mongoUri.trim();
   
   if (!MONGO_ATLAS_REGEX.test(trimmedUri)) {
-    throw new Error('Invalid MongoDB Atlas URL format! Must match pattern mongodb+srv://user:pass@cluster.mongodb.net/dbname');
+    throw new Error('Invalid MongoDB Atlas URL format! Missing username, password, or cluster hostname. Format must be: mongodb+srv://username:password@cluster.mongodb.net/dbname. If you do not have a private database, leave this field empty.');
   }
 
   let tempConn;
@@ -62,7 +62,7 @@ export const testMongoConnection = async (mongoUri) => {
     if (tempConn) {
       try { await tempConn.close(); } catch (_) {}
     }
-    throw new Error(`MongoDB Atlas Connection Failed: ${err.message}. Please check credentials and ensure Network Access (0.0.0.0/0) is enabled on your MongoDB Atlas cluster.`);
+    throw new Error(`MongoDB Atlas Connection Failed: ${err.message}. Please check username, password, and ensure Network Access (0.0.0.0/0) is enabled on your MongoDB Atlas cluster. Or leave empty for default storage.`);
   }
 };
 
