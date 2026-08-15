@@ -62,7 +62,7 @@ export const testMongoConnection = async (mongoUri) => {
     if (tempConn) {
       try { await tempConn.close(); } catch (_) {}
     }
-    throw new Error(`MongoDB Atlas Connection Failed: ${err.message}`);
+    throw new Error(`MongoDB Atlas Connection Failed: ${err.message}. Please check credentials and ensure Network Access (0.0.0.0/0) is enabled on your MongoDB Atlas cluster.`);
   }
 };
 
