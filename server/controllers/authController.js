@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Expense from '../models/Expense.js';
+import { testMongoConnection } from '../config/multiDb.js';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'balaspend_secret_key_123', {
-    expiresIn: '3650d', // Long-lived token so user stays logged in permanently ("no session once login no logout ok")
+    expiresIn: '3650d', // Long-lived token so user stays logged in permanently
   });
 };
 
@@ -42,10 +43,10 @@ export const seedDefaultUser = async () => {
 // Register User
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, mongoUri } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide all fields' });
+      return res.status(400).json({ success: false, message: 'Please provide all required fields' });
     }
 
     const userExists = await User.findOne({ email: email.toLowerCase() });
@@ -53,10 +54,23 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'User already exists with this email' });
     }
 
+    // STRICT VALIDATION: If custom mongoUri is provided, test connection before allowing registration
+    if (mongoUri && mongoUri.trim() !== '') {
+      try {
+        await testMongoConnection(mongoUri.trim());
+      } catch (connErr) {
+        return res.status(400).json({
+          success: false,
+          message: `Registration Rejected: ${connErr.message}. Please check your MongoDB Atlas URL and credentials.`,
+        });
+      }
+    }
+
     const user = await User.create({
       name,
       email: email.toLowerCase(),
       password,
+      mongoUri: mongoUri ? mongoUri.trim() : '',
     });
 
     res.status(201).json({
@@ -66,6 +80,7 @@ export const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        mongoUri: user.mongoUri,
         token: generateToken(user._id),
       },
     });
@@ -93,6 +108,7 @@ export const loginUser = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          mongoUri: user.mongoUri,
           token: generateToken(user._id),
         },
       });

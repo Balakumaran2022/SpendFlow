@@ -1,10 +1,11 @@
-import Expense from "../models/Expense.js";
+import { getExpenseModelForUser } from "../config/multiDb.js";
 
 // Get All Expenses for logged in user
 export const getExpenses = async (req, res) => {
   try {
+    const ExpenseModel = await getExpenseModelForUser(req.user);
     const query = req.user ? { user: req.user._id } : {};
-    const expenses = await Expense.find(query).sort({ date: -1 }).lean();
+    const expenses = await ExpenseModel.find(query).sort({ date: -1 }).lean();
     res.setHeader("Cache-Control", "no-cache");
     res.status(200).json({
       success: true,
@@ -22,9 +23,10 @@ export const getExpenses = async (req, res) => {
 // Create Expense for logged in user
 export const createExpense = async (req, res) => {
   try {
+    const ExpenseModel = await getExpenseModelForUser(req.user);
     const { title, amount, category, date, description } = req.body;
 
-    const expense = await Expense.create({
+    const expense = await ExpenseModel.create({
       title,
       amount,
       category,
@@ -49,12 +51,13 @@ export const createExpense = async (req, res) => {
 // Update Expense
 export const updateExpense = async (req, res) => {
   try {
+    const ExpenseModel = await getExpenseModelForUser(req.user);
     const { id } = req.params;
     const { title, amount, category, date, description } = req.body;
 
     const filter = req.user ? { _id: id, user: req.user._id } : { _id: id };
 
-    const expense = await Expense.findOneAndUpdate(
+    const expense = await ExpenseModel.findOneAndUpdate(
       filter,
       { title, amount, category, date, description },
       { new: true, runValidators: true }
@@ -80,10 +83,11 @@ export const updateExpense = async (req, res) => {
 // Delete Expense
 export const deleteExpense = async (req, res) => {
   try {
+    const ExpenseModel = await getExpenseModelForUser(req.user);
     const { id } = req.params;
     const filter = req.user ? { _id: id, user: req.user._id } : { _id: id };
 
-    const expense = await Expense.findOneAndDelete(filter);
+    const expense = await ExpenseModel.findOneAndDelete(filter);
 
     if (!expense) {
       return res.status(404).json({ success: false, message: "Expense not found or unauthorized" });
@@ -105,6 +109,7 @@ export const deleteExpense = async (req, res) => {
 // Bulk Delete Expenses
 export const deleteBulkExpenses = async (req, res) => {
   try {
+    const ExpenseModel = await getExpenseModelForUser(req.user);
     const { ids } = req.body;
 
     if (!Array.isArray(ids) || ids.length === 0) {
@@ -118,7 +123,7 @@ export const deleteBulkExpenses = async (req, res) => {
       ? { _id: { $in: ids }, user: req.user._id }
       : { _id: { $in: ids } };
 
-    const result = await Expense.deleteMany(filter);
+    const result = await ExpenseModel.deleteMany(filter);
 
     res.status(200).json({
       success: true,

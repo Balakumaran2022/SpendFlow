@@ -50,10 +50,10 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async (name, email, password) => {
+  const register = async (name, email, password, mongoUri = '') => {
     setLoading(true);
     try {
-      const res = await registerApi({ name, email, password });
+      const res = await registerApi({ name, email, password, mongoUri });
       const userData = res.data;
       setUser(userData);
       setToken(userData.token);
@@ -64,6 +64,7 @@ export function AuthProvider({ children }) {
       setLoading(false);
     }
   };
+
 
   const logout = () => {
     setUser(null);

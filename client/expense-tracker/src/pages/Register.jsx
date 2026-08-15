@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User as UserIcon, Mail, Lock, UserPlus, AlertCircle, ArrowLeft } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [mongoUri, setMongoUri] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -17,9 +18,9 @@ export default function Register() {
     e.preventDefault();
     setError('');
 
-    // Ensure all fields are filled
+    // Ensure required fields are filled
     if (!name.trim() || !email.trim() || !password || !confirmPassword) {
-      setError('All fields are required. Please fill in all fields.');
+      setError('Name, Email, Password, and Confirm Password are required.');
       return;
     }
 
@@ -35,10 +36,10 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register(name.trim(), email.trim(), password);
+      await register(name.trim(), email.trim(), password, mongoUri.trim());
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Registration failed. Email might already be taken.');
+      setError(err.message || 'Registration failed. Please verify credentials or custom MongoDB Atlas connection URL.');
     } finally {
       setLoading(false);
     }
@@ -58,7 +59,7 @@ export default function Register() {
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
             Create Account
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500">All fields are required to register</p>
+          <p className="text-xs sm:text-sm text-slate-500">Register your personal expense workspace</p>
         </div>
 
         {/* Error notification */}
@@ -146,6 +147,27 @@ export default function Register() {
             </div>
           </div>
 
+          {/* PRIVATE CUSTOM MONGO ATLAS URL FIELD */}
+          <div className="space-y-1 pt-1">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <DatabaseZap className="w-3.5 h-3.5 text-indigo-600" />
+              Custom MongoDB Atlas URL <span className="text-slate-400 text-[10px] font-normal uppercase">(Optional)</span>
+            </label>
+            <div className="relative">
+              <Database className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={mongoUri}
+                onChange={(e) => setMongoUri(e.target.value)}
+                placeholder="mongodb+srv://user:pass@cluster.mongodb.net/dbname"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-mono"
+              />
+            </div>
+            <p className="text-[11px] text-slate-500 pl-1 leading-snug">
+              Provide your private MongoDB Atlas URL to store your data 100% separately. If given, registration tests connection first.
+            </p>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -153,7 +175,7 @@ export default function Register() {
             className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm shadow-md hover:bg-blue-700 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer border-0 mt-3"
           >
             {loading ? (
-              <span>Creating Account...</span>
+              <span>Verifying Connection & Creating Account...</span>
             ) : (
               <>
                 <UserPlus className="w-4 h-4 stroke-[3]" style={{ color: '#ffffff' }} />
