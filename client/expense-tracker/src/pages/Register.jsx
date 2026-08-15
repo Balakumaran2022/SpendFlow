@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert, X } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert, X, LogIn } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -66,6 +66,9 @@ export default function Register() {
       setLoading(false);
     }
   };
+
+  const isUserExistsError = error.toLowerCase().includes('already exists');
+  const isMongoError = error.toLowerCase().includes('mongo') || error.toLowerCase().includes('connection');
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center items-center px-4 py-8 relative">
@@ -139,14 +142,43 @@ export default function Register() {
           <p className="text-xs sm:text-sm text-slate-500">Register your personal expense workspace</p>
         </div>
 
-        {/* Top Error Notification */}
+        {/* Top Prominent Error Notification */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-xs text-red-700 font-semibold space-y-1 animate-in slide-in-from-top-2">
-            <div className="flex items-center gap-2 font-bold text-red-800">
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-xs text-red-700 font-semibold space-y-2.5 animate-in slide-in-from-top-2">
+            <div className="flex items-center gap-2 font-bold text-red-800 text-sm">
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-              <span>Registration Error:</span>
+              <span>Registration Couldn't Complete</span>
             </div>
-            <p className="pl-6 text-[11px] leading-relaxed text-red-600">{error}</p>
+            
+            <p className="text-xs leading-relaxed text-red-700 font-medium">{error}</p>
+
+            {/* Smart Resolution Buttons inside Error Banner */}
+            {isUserExistsError && (
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
+                className="w-full py-2.5 px-3 rounded-xl font-bold text-xs shadow-xs hover:bg-blue-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0 mt-1"
+              >
+                <LogIn className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />
+                <span>Go to Sign In Page Instead</span>
+              </button>
+            )}
+
+            {isMongoError && mongoUri && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMongoUri('');
+                  setError('');
+                }}
+                style={{ backgroundColor: '#4f46e5', color: '#ffffff' }}
+                className="w-full py-2.5 px-3 rounded-xl font-bold text-xs shadow-xs hover:bg-indigo-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0 mt-1"
+              >
+                <X className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />
+                <span>Clear MongoDB URL & Try Standard Registration</span>
+              </button>
+            )}
           </div>
         )}
 
@@ -277,7 +309,7 @@ export default function Register() {
             </p>
           </div>
 
-          {/* Bottom Error Notification (Immediately above Submit Button) */}
+          {/* Bottom Error Notification */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-2xl p-3 text-xs text-red-700 font-semibold space-y-1 mt-2">
               <div className="flex items-center gap-1.5 font-bold text-red-800">
