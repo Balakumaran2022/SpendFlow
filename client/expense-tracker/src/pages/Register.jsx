@@ -266,12 +266,11 @@ export default function Register() {
 
           {/* STRICTLY REQUIRED MONGODB ATLAS URL FIELD */}
           <div className="space-y-1 pt-1">
-            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
               <span className="flex items-center gap-1.5">
                 <DatabaseZap className="w-3.5 h-3.5 text-indigo-600" />
-                MongoDB Atlas URL
+                MongoDB Atlas URL <span className="text-red-500">*</span>
               </span>
-              <span className="text-red-500 text-[10px] font-bold uppercase">* Required</span>
             </label>
             
             <div className="relative">
