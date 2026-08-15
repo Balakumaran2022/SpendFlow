@@ -17,7 +17,8 @@ const getAuthHeaders = () => {
   return headers;
 };
 
-const fetchWithFallback = async (endpoint, options = {}) => {
+// Robust fetch with automatic retries for Render server cold-starts
+const fetchWithFallback = async (endpoint, options = {}, retries = 2) => {
   const headers = {
     ...getAuthHeaders(),
     ...(options.headers || {}),
@@ -29,16 +30,29 @@ const fetchWithFallback = async (endpoint, options = {}) => {
   };
 
   const primaryEndpoint = `${PRIMARY_URL}${endpoint}`;
-  try {
-    const res = await fetch(primaryEndpoint, requestOptions);
-    return res;
-  } catch (err) {
-    if (PRIMARY_URL !== FALLBACK_URL) {
-      console.warn("Primary API network error, attempting fallback to Render server:", err.message);
-      const fallbackEndpoint = `${FALLBACK_URL}${endpoint}`;
-      return await fetch(fallbackEndpoint, requestOptions);
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(primaryEndpoint, requestOptions);
+      return res;
+    } catch (err) {
+      console.warn(`API attempt ${attempt + 1} failed:`, err.message);
+      
+      // If server is cold-starting on Render, wait 2.5s and retry automatically
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+        continue;
+      }
+
+      if (PRIMARY_URL !== FALLBACK_URL) {
+        try {
+          const fallbackEndpoint = `${FALLBACK_URL}${endpoint}`;
+          return await fetch(fallbackEndpoint, requestOptions);
+        } catch (_) {}
+      }
+
+      throw new Error('Server is waking up or unreachable. Please wait 5-10 seconds and click Register Account again.');
     }
-    throw err;
   }
 };
 
