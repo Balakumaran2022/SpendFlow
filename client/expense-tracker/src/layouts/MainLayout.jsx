@@ -34,7 +34,8 @@ export function MainLayout() {
       <Navbar onAddExpense={handleAddExpense} />
       
       <div className="flex flex-1 w-full max-w-full overflow-x-hidden">
-        <Sidebar />
+        <Sidebar onAddExpense={handleAddExpense} />
+
         <main className="flex-1 w-full max-w-full animate-in fade-in duration-500 overflow-x-hidden">
           <Outlet />
         </main>

@@ -1,13 +1,13 @@
-import { Plus, Search, LogOut, User } from 'lucide-react';
+import { Search, LogOut, User } from 'lucide-react';
 import { Input } from '../ui/input';
 import { useAuth } from '../../context/AuthContext';
 
-export function Navbar({ onAddExpense }) {
+export function Navbar() {
   const { user, logout } = useAuth();
   const userName = user?.name || user?.email?.split('@')[0] || 'User';
 
   return (
-    <nav className="bg-white/95 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-40 supports-[backdrop-filter]:bg-white/80 w-full shadow-xs">
+    <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 w-full shadow-xs">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         <div className="flex justify-between items-center h-14 sm:h-16">
           
@@ -34,41 +34,35 @@ export function Navbar({ onAddExpense }) {
             </div>
           </div>
           
-          {/* Right Header Actions */}
+          {/* Right Header: User Profile & PROMINENT VISIBLE LOGOUT BUTTON */}
           <div className="flex items-center gap-2 sm:gap-3">
-            
-            {/* HIGH-VISIBILITY ALWAYS-BLUE + ADD BUTTON */}
-            <button 
-              type="button"
-              onClick={onAddExpense}
-              style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-              className="rounded-full shadow-lg shadow-blue-500/30 px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1 sm:gap-1.5 transition-all hover:opacity-90 active:scale-95 text-xs sm:text-sm font-extrabold border-0 cursor-pointer shrink-0"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" style={{ color: '#ffffff' }} />
-              <span className="hidden sm:inline">New Expense</span>
-              <span className="sm:hidden">+ Add</span>
-            </button>
-
-            {/* User Profile & Logout */}
             {user && (
-              <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-100/80 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-200/60">
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px] sm:text-xs">
-                  {userName.charAt(0).toUpperCase()}
+              <div className="flex items-center gap-2">
+                
+                {/* User Info Badge */}
+                <div className="flex items-center gap-1.5 bg-slate-100/90 px-2.5 py-1 rounded-full border border-slate-200">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-xs">
+                    {userName.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-xs font-bold text-slate-800 max-w-[90px] sm:max-w-[140px] truncate">
+                    {userName}
+                  </span>
                 </div>
-                <span className="text-xs font-semibold text-slate-700 max-w-[80px] sm:max-w-[120px] truncate hidden xs:inline">
-                  {userName}
-                </span>
+
+                {/* CLEARLY VISIBLE RED LOGOUT BUTTON */}
                 <button
                   type="button"
                   onClick={logout}
                   title="Logout"
-                  className="text-slate-400 hover:text-red-600 transition-colors p-1 rounded-full border-0 bg-transparent cursor-pointer ml-0.5"
+                  style={{ backgroundColor: '#fef2f2', color: '#dc2626', borderColor: '#fecaca' }}
+                  className="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border text-xs font-bold transition-all hover:bg-red-100 active:scale-95 cursor-pointer shrink-0"
                 >
-                  <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <LogOut className="w-3.5 h-3.5 stroke-[2.5]" style={{ color: '#dc2626' }} />
+                  <span>Logout</span>
                 </button>
+
               </div>
             )}
-
           </div>
 
         </div>
