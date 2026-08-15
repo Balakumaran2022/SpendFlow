@@ -32,16 +32,18 @@ export function Navbar({ onAddExpense }) {
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            <Button 
+          <div className="flex items-center gap-3">
+            <button 
+              type="button"
               onClick={onAddExpense}
-              className="rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-200/50 px-4 sm:px-5 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm font-semibold"
+              className="rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-lg shadow-blue-500/30 px-3.5 sm:px-5 py-2 flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm font-bold border-0 cursor-pointer shrink-0"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 stroke-[3]" />
               <span className="hidden sm:inline">New Expense</span>
-              <span className="sm:hidden">Add</span>
-            </Button>
+              <span className="sm:hidden font-extrabold">+ Add</span>
+            </button>
           </div>
+
         </div>
       </div>
     </nav>
