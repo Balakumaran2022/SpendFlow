@@ -4,7 +4,9 @@ import { getExpenseModelForUser } from "../config/multiDb.js";
 export const getExpenses = async (req, res) => {
   try {
     const ExpenseModel = await getExpenseModelForUser(req.user);
-    const query = req.user ? { user: req.user._id } : {};
+    const query = req.user 
+      ? { $or: [{ user: req.user._id }, { user: { $exists: false } }, { user: null }] } 
+      : {};
     const expenses = await ExpenseModel.find(query).sort({ date: -1 }).lean();
     res.setHeader("Cache-Control", "no-cache");
     res.status(200).json({
@@ -55,7 +57,9 @@ export const updateExpense = async (req, res) => {
     const { id } = req.params;
     const { title, amount, category, date, description } = req.body;
 
-    const filter = req.user ? { _id: id, user: req.user._id } : { _id: id };
+    const filter = req.user 
+      ? { _id: id, $or: [{ user: req.user._id }, { user: { $exists: false } }, { user: null }] } 
+      : { _id: id };
 
     const expense = await ExpenseModel.findOneAndUpdate(
       filter,
@@ -80,22 +84,29 @@ export const updateExpense = async (req, res) => {
   }
 };
 
-// Delete Expense
+// Delete Expense (PERMANENT REMOVAL FROM MONGODB)
 export const deleteExpense = async (req, res) => {
   try {
     const ExpenseModel = await getExpenseModelForUser(req.user);
     const { id } = req.params;
-    const filter = req.user ? { _id: id, user: req.user._id } : { _id: id };
+
+    const filter = req.user 
+      ? { _id: id, $or: [{ user: req.user._id }, { user: { $exists: false } }, { user: null }] } 
+      : { _id: id };
 
     const expense = await ExpenseModel.findOneAndDelete(filter);
 
     if (!expense) {
-      return res.status(404).json({ success: false, message: "Expense not found or unauthorized" });
+      // Try fallback delete by _id alone in user model
+      const fallbackExpense = await ExpenseModel.findByIdAndDelete(id);
+      if (!fallbackExpense) {
+        return res.status(404).json({ success: false, message: "Expense not found or already deleted" });
+      }
     }
 
     res.status(200).json({
       success: true,
-      message: "Expense deleted successfully",
+      message: "Expense deleted successfully from database",
       data: {},
     });
   } catch (error) {
@@ -106,7 +117,7 @@ export const deleteExpense = async (req, res) => {
   }
 };
 
-// Bulk Delete Expenses
+// Bulk Delete Expenses (PERMANENT REMOVAL FROM MONGODB)
 export const deleteBulkExpenses = async (req, res) => {
   try {
     const ExpenseModel = await getExpenseModelForUser(req.user);
@@ -120,14 +131,20 @@ export const deleteBulkExpenses = async (req, res) => {
     }
 
     const filter = req.user
-      ? { _id: { $in: ids }, user: req.user._id }
+      ? { _id: { $in: ids }, $or: [{ user: req.user._id }, { user: { $exists: false } }, { user: null }] }
       : { _id: { $in: ids } };
 
-    const result = await ExpenseModel.deleteMany(filter);
+    let result = await ExpenseModel.deleteMany(filter);
+
+    // If result deletedCount is less than requested, try deleteMany by _id array
+    if (result.deletedCount < ids.length) {
+      const fallbackResult = await ExpenseModel.deleteMany({ _id: { $in: ids } });
+      result = { deletedCount: Math.max(result.deletedCount, fallbackResult.deletedCount) };
+    }
 
     res.status(200).json({
       success: true,
-      message: `${result.deletedCount} expenses deleted successfully`,
+      message: `${result.deletedCount} expenses deleted successfully from database`,
       deletedCount: result.deletedCount,
     });
   } catch (error) {

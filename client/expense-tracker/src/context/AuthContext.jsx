@@ -17,8 +17,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // If token exists, verify profile
-    if (token && !user) {
+    // Verify user profile silently without logging out on network glitches
+    if (token && user) {
       getMeApi()
         .then((res) => {
           if (res.data) {
@@ -26,14 +26,11 @@ export function AuthProvider({ children }) {
             localStorage.setItem('balaspend_user', JSON.stringify(res.data));
           }
         })
-        .catch(() => {
-          // If token fails, set default admin user for instant access
-          const defaultAdmin = { name: 'Bala (Admin)', email: 'balaavcce@gmail.com' };
-          setUser(defaultAdmin);
-          localStorage.setItem('balaspend_user', JSON.stringify(defaultAdmin));
+        .catch((err) => {
+          console.warn("Silent background profile check failed, keeping local session active:", err.message);
         });
     }
-  }, [token, user]);
+  }, [token]);
 
   const login = async (email, password) => {
     setLoading(true);
@@ -65,12 +62,12 @@ export function AuthProvider({ children }) {
     }
   };
 
-
   const logout = () => {
     setUser(null);
     setToken('');
     localStorage.removeItem('balaspend_user');
     localStorage.removeItem('balaspend_token');
+    localStorage.removeItem('balaspend_cached_expenses');
   };
 
   return (
