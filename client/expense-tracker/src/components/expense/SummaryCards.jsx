@@ -51,7 +51,7 @@ export default function SummaryCards({ expenses = [] }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
       {summaryData.map((item) => {
         const Icon = item.icon;
 
@@ -60,22 +60,23 @@ export default function SummaryCards({ expenses = [] }) {
             key={item.title}
             className="rounded-2xl border border-slate-100/80 shadow-sm hover:shadow-md transition-all duration-200 bg-white overflow-hidden"
           >
-            <CardContent className="p-3.5 sm:p-5 flex items-center justify-between gap-2">
+            <CardContent className="p-2.5 sm:p-5 flex items-center justify-between gap-1.5 sm:gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">
+                <p className="text-[9px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">
                   {item.title}
                 </p>
-                <h2 className="mt-1 text-base sm:text-2xl font-black tracking-tight text-slate-900 truncate">
+                <h2 className="mt-0.5 text-xs sm:text-2xl font-black tracking-tight text-slate-900 truncate">
                   {item.value}
                 </h2>
               </div>
-              <div className={`shrink-0 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 ${item.bg} ${item.color}`}>
-                <Icon className="h-4 w-4 sm:h-6 sm:w-6" />
+              <div className={`shrink-0 rounded-lg sm:rounded-2xl p-2 sm:p-3.5 ${item.bg} ${item.color}`}>
+                <Icon className="h-3.5 w-3.5 sm:h-6 sm:w-6" />
               </div>
             </CardContent>
           </Card>
         );
       })}
     </div>
+
   );
 }

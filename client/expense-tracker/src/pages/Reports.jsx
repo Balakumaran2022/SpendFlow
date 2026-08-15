@@ -196,7 +196,8 @@ export default function Reports() {
               </div>
             </CardHeader>
             <CardContent className="p-3 sm:p-6 h-[280px] sm:h-[340px]">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={200}>
+
                 <BarChart data={monthlyData} margin={{ top: 15, right: 10, left: -15, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} dy={5} />
@@ -227,7 +228,8 @@ export default function Reports() {
               </div>
             </CardHeader>
             <CardContent className="p-3 sm:p-6 h-[280px] sm:h-[340px]">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={200}>
+
                 <PieChart>
                   <Pie
                     data={categoryData}

@@ -13,7 +13,7 @@ export function MobileBottomNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-2xl px-6 py-2.5 flex items-center justify-around pb-safe">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-2xl px-1 sm:px-4 py-2 flex items-center justify-around pb-safe">
       {navItems.map((item) => {
         const isActive = location.pathname === item.path;
         return (
@@ -21,17 +21,18 @@ export function MobileBottomNav() {
             key={item.name}
             to={item.path}
             className={cn(
-              "flex flex-col items-center gap-1 py-1 px-4 rounded-xl transition-all text-xs font-semibold",
+              "flex flex-col items-center gap-1 py-1 px-1.5 sm:px-3 rounded-xl transition-all text-[10px] sm:text-xs font-semibold flex-1 max-w-[25%] min-w-0",
               isActive 
                 ? "text-blue-600 font-bold" 
                 : "text-slate-500 hover:text-slate-900"
             )}
           >
-            <item.icon className={cn("w-5 h-5", isActive ? "text-blue-600 scale-110" : "text-slate-400")} />
-            <span>{item.name}</span>
+            <item.icon className={cn("w-4 h-4 sm:w-5 sm:h-5 shrink-0", isActive ? "text-blue-600 scale-110" : "text-slate-400")} />
+            <span className="truncate w-full text-center tracking-tighter leading-tight">{item.name}</span>
           </Link>
         );
       })}
     </div>
   );
 }
+

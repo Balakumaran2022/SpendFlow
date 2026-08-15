@@ -39,7 +39,8 @@ export function ExpenseFilters({
       </div>
 
       {/* Dropdowns Section */}
-      <div className="grid grid-cols-2 md:flex items-center gap-2.5 w-full md:w-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:flex items-center gap-2.5 w-full md:w-auto">
+
         
         {/* Category Dropdown */}
         <Select 

@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@layer utilities {
+  .pb-safe {
+    padding-bottom: max(0.625rem, env(safe-area-inset-bottom));
+  }
+}
+
 :root {
   --background: #0f172a;
   --foreground: #f8fafc;
@@ -19,8 +25,21 @@
   --border: #334155;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Inter, sans-serif;
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
 }

@@ -4,10 +4,11 @@ import { Input } from '../ui/input';
 
 export function Navbar({ onAddExpense }) {
   return (
-    <nav className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-40 supports-[backdrop-filter]:bg-white/60">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-6">
+    <nav className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-40 supports-[backdrop-filter]:bg-white/60 w-full">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6">
+        <div className="flex justify-between items-center h-14 sm:h-16">
+          <div className="flex items-center gap-2 sm:gap-6">
+
             
             {/* Original SVG Logo Icon & Original Color Palette with BalaSpend */}
             <div className="flex items-center gap-2.5">
