@@ -52,8 +52,18 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
     setFormData({ ...formData, category: val });
   };
 
+  // Validation: 3 fields (title, amount, category) are strictly required. Notes/description is optional.
+  const isTitleValid = Boolean(formData.title && formData.title.trim() !== '');
+  const isAmountValid = Boolean(formData.amount !== '' && !isNaN(formData.amount) && Number(formData.amount) > 0);
+  const isCategoryValid = Boolean(formData.category && formData.category.trim() !== '');
+  
+  const isFormValid = isTitleValid && isAmountValid && isCategoryValid;
+  const isSaveDisabled = loading || !isFormValid;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isFormValid) return;
+
     try {
       setLoading(true);
       const payload = {
@@ -106,8 +116,11 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
+            {/* Title (Required) */}
             <div className="grid gap-1.5">
-              <label htmlFor="title" className="text-xs font-semibold text-slate-700">Title</label>
+              <label htmlFor="title" className="text-xs font-semibold text-slate-700">
+                Title <span className="text-red-500">*</span>
+              </label>
               <Input 
                 id="title" 
                 value={formData.title} 
@@ -118,23 +131,29 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
               />
             </div>
 
+            {/* Amount (Required) */}
             <div className="grid gap-1.5">
-              <label htmlFor="amount" className="text-xs font-semibold text-slate-700">Amount (₹)</label>
+              <label htmlFor="amount" className="text-xs font-semibold text-slate-700">
+                Amount (₹) <span className="text-red-500">*</span>
+              </label>
               <Input 
                 id="amount" 
                 value={formData.amount} 
                 onChange={handleChange} 
                 required 
                 type="number" 
-                min="0" 
+                min="0.01" 
                 step="0.01" 
                 placeholder="0.00" 
                 className="bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-11 font-semibold"
               />
             </div>
 
+            {/* Category (Required) */}
             <div className="grid gap-1.5">
-              <label htmlFor="category" className="text-xs font-semibold text-slate-700">Category</label>
+              <label htmlFor="category" className="text-xs font-semibold text-slate-700">
+                Category <span className="text-red-500">*</span>
+              </label>
               <Select value={formData.category} onValueChange={handleCategoryChange} required>
                 <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-11 px-3.5 text-slate-800 font-medium">
                   <SelectValue placeholder="Select a category" />
@@ -186,8 +205,12 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
               </Select>
             </div>
 
+            {/* Notes / Description (Optional) */}
             <div className="grid gap-1.5">
-              <label htmlFor="description" className="text-xs font-semibold text-slate-700">Notes / Description</label>
+              <label htmlFor="description" className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                <span>Notes / Description</span>
+                <span className="text-[10px] text-slate-400 font-normal">(Optional)</span>
+              </label>
               <Textarea 
                 id="description" 
                 value={formData.description} 
@@ -202,7 +225,16 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
             <Button type="button" variant="outline" onClick={onClose} className="rounded-xl border-slate-200" disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit" className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-200" disabled={loading}>
+            <Button 
+              type="submit" 
+              disabled={isSaveDisabled}
+              style={
+                isSaveDisabled 
+                  ? { backgroundColor: '#cbd5e1', color: '#64748b', cursor: 'not-allowed', opacity: 0.6 } 
+                  : { backgroundColor: '#2563eb', color: '#ffffff', cursor: 'pointer' }
+              }
+              className="rounded-xl font-bold transition-all border-0 shadow-sm"
+            >
               {loading ? "Saving..." : (isEditMode ? "Save Changes" : "Save Expense")}
             </Button>
           </DialogFooter>
