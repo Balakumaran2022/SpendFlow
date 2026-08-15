@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert, X, LogIn } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert, LogIn } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -50,9 +50,14 @@ export default function Register() {
       return;
     }
 
-    // IF MONGODB ATLAS URL IS ENTERED, CHECK REGEX FORMAT
-    if (mongoUri.trim() && !MONGO_ATLAS_REGEX.test(mongoUri.trim())) {
-      triggerError('Invalid MongoDB Atlas URL format! A valid URL must include username, password, and hostname (e.g. mongodb+srv://username:password@cluster.mongodb.net/dbname). If you do not have one, click "Clear URL" below.');
+    // MANDATORY MONGODB ATLAS URL VALIDATION
+    if (!mongoUri.trim()) {
+      triggerError('MongoDB Atlas URL is strictly required to create an account.');
+      return;
+    }
+
+    if (!MONGO_ATLAS_REGEX.test(mongoUri.trim())) {
+      triggerError('Invalid MongoDB Atlas URL format! Must be a complete connection string (e.g. mongodb+srv://username:password@cluster.mongodb.net/dbname).');
       return;
     }
 
@@ -68,7 +73,6 @@ export default function Register() {
   };
 
   const isUserExistsError = error.toLowerCase().includes('already exists');
-  const isMongoError = error.toLowerCase().includes('mongo') || error.toLowerCase().includes('connection');
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center items-center px-4 py-8 relative">
@@ -152,7 +156,7 @@ export default function Register() {
             
             <p className="text-xs leading-relaxed text-red-700 font-medium">{error}</p>
 
-            {/* Smart Resolution Buttons inside Error Banner */}
+            {/* Smart Resolution Button if user exists */}
             {isUserExistsError && (
               <button
                 type="button"
@@ -162,21 +166,6 @@ export default function Register() {
               >
                 <LogIn className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />
                 <span>Go to Sign In Page Instead</span>
-              </button>
-            )}
-
-            {isMongoError && mongoUri && (
-              <button
-                type="button"
-                onClick={() => {
-                  setMongoUri('');
-                  setError('');
-                }}
-                style={{ backgroundColor: '#4f46e5', color: '#ffffff' }}
-                className="w-full py-2.5 px-3 rounded-xl font-bold text-xs shadow-xs hover:bg-indigo-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0 mt-1"
-              >
-                <X className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />
-                <span>Clear MongoDB URL & Try Standard Registration</span>
               </button>
             )}
           </div>
@@ -275,28 +264,21 @@ export default function Register() {
             </div>
           </div>
 
-          {/* MONGODB ATLAS URL FIELD WITH 1-CLICK CLEAR BUTTON */}
+          {/* STRICTLY REQUIRED MONGODB ATLAS URL FIELD */}
           <div className="space-y-1 pt-1">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
                 <DatabaseZap className="w-3.5 h-3.5 text-indigo-600" />
                 MongoDB Atlas URL
-              </label>
-              {mongoUri && (
-                <button
-                  type="button"
-                  onClick={() => setMongoUri('')}
-                  className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-0.5 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full cursor-pointer border-0"
-                >
-                  <X className="w-3 h-3" /> Clear (Use Default)
-                </button>
-              )}
-            </div>
+              </span>
+              <span className="text-red-500 text-[10px] font-bold uppercase">* Required</span>
+            </label>
             
             <div className="relative">
               <Database className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
+                required
                 value={mongoUri}
                 onChange={(e) => setMongoUri(e.target.value)}
                 placeholder="mongodb+srv://username:password@cluster.mongodb.net/dbname"
@@ -305,7 +287,7 @@ export default function Register() {
             </div>
             
             <p className="text-[11px] text-slate-500 pl-1 leading-snug">
-              Optional: Leave empty for standard cloud storage. If entered, MUST be a complete connection string: <code className="text-indigo-600 font-mono">mongodb+srv://user:pass@cluster...</code>
+              Required: Enter your valid MongoDB Atlas URL (<code className="text-indigo-600 font-mono">mongodb+srv://username:password@cluster.mongodb.net/dbname</code>). Account and expenses are stored 100% inside your database.
             </p>
           </div>
 

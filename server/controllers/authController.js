@@ -39,31 +39,32 @@ export const seedDefaultUser = async () => {
   }
 };
 
-// Register User
+// Register User (STRICTLY REQUIRES CUSTOM MONGODB ATLAS URL)
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, mongoUri } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide all required fields' });
+    if (!name || !email || !password || !mongoUri || mongoUri.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields including a valid MongoDB Atlas URL are strictly required to create an account.',
+      });
     }
 
     const trimmedEmail = email.toLowerCase().trim();
-    const trimmedUri = mongoUri ? mongoUri.trim() : '';
+    const trimmedUri = mongoUri.trim();
 
-    // If custom mongoUri is provided, validate format & test connection
-    if (trimmedUri !== '') {
-      try {
-        await testMongoConnection(trimmedUri);
-      } catch (connErr) {
-        return res.status(400).json({
-          success: false,
-          message: `Registration Rejected: ${connErr.message}. Please check your MongoDB Atlas URL and credentials.`,
-        });
-      }
+    // Validate format & test connection to user-provided MongoDB Atlas URL
+    try {
+      await testMongoConnection(trimmedUri);
+    } catch (connErr) {
+      return res.status(400).json({
+        success: false,
+        message: `Registration Rejected: ${connErr.message}. Please check your MongoDB Atlas URL and credentials.`,
+      });
     }
 
-    // Get Target User Model (Primary or Custom MongoDB Atlas)
+    // Get Target User Model bound to user's MongoDB Atlas connection
     const TargetUserModel = await getUserModelForUri(trimmedUri);
 
     const userExists = await TargetUserModel.findOne({ email: trimmedEmail });
@@ -79,17 +80,15 @@ export const registerUser = async (req, res) => {
       mongoUri: trimmedUri,
     });
 
-    // If custom DB, save lightweight pointer in master DB for fast login resolution
-    if (trimmedUri !== '') {
-      try {
-        await User.create({
-          name,
-          email: trimmedEmail,
-          password: user.password, // hashed password
-          mongoUri: trimmedUri,
-        });
-      } catch (_) {}
-    }
+    // Save lightweight pointer in master DB for fast login resolution
+    try {
+      await User.create({
+        name,
+        email: trimmedEmail,
+        password: user.password, // hashed password
+        mongoUri: trimmedUri,
+      });
+    } catch (_) {}
 
     res.status(201).json({
       success: true,
