@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert, LogIn, Loader2 } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert, LogIn } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -22,8 +22,8 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  // Flexible MongoDB Atlas Connection URL Regex (Supports passwords with @ or special characters)
-  const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:.+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}(\/[^\s?]*)?(\?.*)?$/;
+  // Strict MongoDB Atlas Connection URL Regex
+  const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[^\s\/]+(\/[^\s?]*)?(\?.*)?$/;
 
   const triggerError = (msg) => {
     setError(msg);
@@ -266,11 +266,13 @@ export default function Register() {
 
           {/* STRICTLY REQUIRED MONGODB ATLAS URL FIELD */}
           <div className="space-y-1 pt-1">
-            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-              <DatabaseZap className="w-3.5 h-3.5 text-indigo-600" />
-              MongoDB Atlas URL <span className="text-red-500">*</span>
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <DatabaseZap className="w-3.5 h-3.5 text-indigo-600" />
+                MongoDB Atlas URL
+              </span>
+              <span className="text-red-500 text-[10px] font-bold uppercase">* Required</span>
             </label>
-
             
             <div className="relative">
               <Database className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -303,14 +305,11 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            style={{ backgroundColor: loading ? '#3b82f6' : '#2563eb', color: '#ffffff' }}
-            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm shadow-md hover:bg-blue-700 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer border-0 mt-3 disabled:opacity-90 disabled:cursor-not-allowed"
+            style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
+            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm shadow-md hover:bg-blue-700 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer border-0 mt-3"
           >
             {loading ? (
-              <div className="flex items-center justify-center gap-2 text-white font-bold">
-                <Loader2 className="w-5 h-5 animate-spin text-white shrink-0" />
-                <span>Connecting & Creating Account...</span>
-              </div>
+              <span>Verifying Connection & Creating Account...</span>
             ) : (
               <>
                 <UserPlus className="w-4 h-4 stroke-[3]" style={{ color: '#ffffff' }} />

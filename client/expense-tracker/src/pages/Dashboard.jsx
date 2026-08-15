@@ -3,17 +3,20 @@ import SummaryCards from '../components/expense/SummaryCards';
 import { ExpenseList } from '../components/expense/ExpenseList';
 import { ExpenseFilters } from "@/components/expense/ExpenseFilters";
 import { PageHeader } from '../components/common/PageHeader';
-import { fetchExpenses } from '../services/api';
+import { fetchExpenses, getCachedExpensesLocally } from '../services/api';
 
 export default function Dashboard() {
-  const [expenses, setExpenses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // INSTANT 0ms LOAD FROM LOCAL CACHE
+  const [expenses, setExpenses] = useState(() => getCachedExpensesLocally());
+  const [loading, setLoading] = useState(() => expenses.length === 0);
   const [filters, setFilters] = useState({ search: '', category: 'All Categories', timeframe: 'All Time' });
 
-  const loadExpenses = async () => {
+  const loadExpenses = async (force = false) => {
     try {
-      const response = await fetchExpenses();
-      setExpenses(response.data || []);
+      const response = await fetchExpenses(force);
+      if (response.data) {
+        setExpenses(response.data);
+      }
     } catch (error) {
       console.error("Error loading expenses:", error);
     } finally {
@@ -25,7 +28,7 @@ export default function Dashboard() {
     loadExpenses();
 
     const handleExpenseAdded = () => {
-      loadExpenses();
+      loadExpenses(true);
     };
 
     window.addEventListener('expenseAdded', handleExpenseAdded);
@@ -35,7 +38,7 @@ export default function Dashboard() {
   // Apply filters
   const filteredExpenses = expenses.filter(exp => {
     // 1. Search Filter
-    if (filters.search && !exp.title.toLowerCase().includes(filters.search.toLowerCase()) && !exp.description?.toLowerCase().includes(filters.search.toLowerCase())) {
+    if (filters.search && !exp.title?.toLowerCase().includes(filters.search.toLowerCase()) && !exp.description?.toLowerCase().includes(filters.search.toLowerCase())) {
       return false;
     }
     
@@ -88,7 +91,7 @@ export default function Dashboard() {
       />
       
       {loading ? (
-        <div className="py-12 text-center text-slate-500">Loading expenses...</div>
+        <div className="py-12 text-center text-slate-500 font-medium">Loading expenses...</div>
       ) : (
         <>
           <SummaryCards expenses={expenses} />
@@ -96,7 +99,7 @@ export default function Dashboard() {
           <div className="space-y-4 pt-4">
             <h2 className="text-2xl font-bold tracking-tight text-slate-900">Recent Expenses</h2>
             <ExpenseFilters filters={filters} setFilters={setFilters} />
-            <ExpenseList expenses={filteredExpenses} onRefresh={loadExpenses} />
+            <ExpenseList expenses={filteredExpenses} onRefresh={() => loadExpenses(true)} />
           </div>
         </>
       )}

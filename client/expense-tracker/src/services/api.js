@@ -6,7 +6,7 @@ const AUTH_PATH = '/api/auth';
 
 let memoryCache = null;
 let cacheTime = 0;
-const CACHE_TTL = 30000; // 30 seconds cache TTL
+const CACHE_TTL = 15000; // 15 seconds cache TTL
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('balaspend_token');
@@ -17,8 +17,24 @@ const getAuthHeaders = () => {
   return headers;
 };
 
-// Robust fetch with automatic retries for Render server cold-starts
-const fetchWithFallback = async (endpoint, options = {}, retries = 2) => {
+// Helper: Read locally stored cached expenses for INSTANT 0ms rendering
+export const getCachedExpensesLocally = () => {
+  try {
+    const cached = localStorage.getItem('balaspend_cached_expenses');
+    return cached ? JSON.parse(cached) : [];
+  } catch {
+    return [];
+  }
+};
+
+// Helper: Save expenses to local storage for INSTANT load
+const setCachedExpensesLocally = (expensesArray) => {
+  try {
+    localStorage.setItem('balaspend_cached_expenses', JSON.stringify(expensesArray));
+  } catch (_) {}
+};
+
+const fetchWithFallback = async (endpoint, options = {}) => {
   const headers = {
     ...getAuthHeaders(),
     ...(options.headers || {}),
@@ -30,29 +46,16 @@ const fetchWithFallback = async (endpoint, options = {}, retries = 2) => {
   };
 
   const primaryEndpoint = `${PRIMARY_URL}${endpoint}`;
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const res = await fetch(primaryEndpoint, requestOptions);
-      return res;
-    } catch (err) {
-      console.warn(`API attempt ${attempt + 1} failed:`, err.message);
-      
-      // If server is cold-starting on Render, wait 2.5s and retry automatically
-      if (attempt < retries) {
-        await new Promise((resolve) => setTimeout(resolve, 2500));
-        continue;
-      }
-
-      if (PRIMARY_URL !== FALLBACK_URL) {
-        try {
-          const fallbackEndpoint = `${FALLBACK_URL}${endpoint}`;
-          return await fetch(fallbackEndpoint, requestOptions);
-        } catch (_) {}
-      }
-
-      throw new Error('Server is waking up or unreachable. Please wait 5-10 seconds and click Register Account again.');
+  try {
+    const res = await fetch(primaryEndpoint, requestOptions);
+    return res;
+  } catch (err) {
+    if (PRIMARY_URL !== FALLBACK_URL) {
+      console.warn("Primary API network error, attempting fallback to Render server:", err.message);
+      const fallbackEndpoint = `${FALLBACK_URL}${endpoint}`;
+      return await fetch(fallbackEndpoint, requestOptions);
     }
+    throw err;
   }
 };
 
@@ -92,7 +95,7 @@ export const getMeApi = async () => {
   return data;
 };
 
-// Expenses API Services
+// Expenses API Services - STALE-WHILE-REVALIDATE INSTANT LOAD
 export const fetchExpenses = async (forceRefresh = false) => {
   if (!forceRefresh && memoryCache && (Date.now() - cacheTime < CACHE_TTL)) {
     return memoryCache;
@@ -104,9 +107,22 @@ export const fetchExpenses = async (forceRefresh = false) => {
     const data = await response.json();
     memoryCache = data;
     cacheTime = Date.now();
+
+    // Cache locally for INSTANT 0ms load on next visit
+    if (data.data && Array.isArray(data.data)) {
+      setCachedExpensesLocally(data.data);
+    }
+
     return data;
   } catch (error) {
     if (memoryCache) return memoryCache;
+
+    // Fallback to local cache if network fails
+    const localData = getCachedExpensesLocally();
+    if (localData && localData.length > 0) {
+      return { success: true, count: localData.length, data: localData };
+    }
+
     throw error;
   }
 };
@@ -118,7 +134,15 @@ export const createExpense = async (expenseData) => {
     body: JSON.stringify(expenseData),
   });
   if (!response.ok) throw new Error('Failed to create expense');
-  return response.json();
+  const result = await response.json();
+
+  // Optimistically update local cache
+  if (result.data) {
+    const current = getCachedExpensesLocally();
+    setCachedExpensesLocally([result.data, ...current]);
+  }
+
+  return result;
 };
 
 export const updateExpense = async (id, expenseData) => {
@@ -128,7 +152,16 @@ export const updateExpense = async (id, expenseData) => {
     body: JSON.stringify(expenseData),
   });
   if (!response.ok) throw new Error('Failed to update expense');
-  return response.json();
+  const result = await response.json();
+
+  // Optimistically update local cache
+  if (result.data) {
+    const current = getCachedExpensesLocally();
+    const updated = current.map(item => item._id === id ? result.data : item);
+    setCachedExpensesLocally(updated);
+  }
+
+  return result;
 };
 
 export const deleteExpense = async (id) => {
@@ -137,7 +170,14 @@ export const deleteExpense = async (id) => {
     method: 'DELETE',
   });
   if (!response.ok) throw new Error('Failed to delete expense');
-  return response.json();
+  const result = await response.json();
+
+  // Optimistically update local cache
+  const current = getCachedExpensesLocally();
+  const filtered = current.filter(item => item._id !== id);
+  setCachedExpensesLocally(filtered);
+
+  return result;
 };
 
 export const bulkDeleteExpenses = async (ids) => {
@@ -147,5 +187,14 @@ export const bulkDeleteExpenses = async (ids) => {
     body: JSON.stringify({ ids }),
   });
   if (!response.ok) throw new Error('Failed to perform bulk delete');
-  return response.json();
+  const result = await response.json();
+
+  // Optimistically update local cache
+  if (Array.isArray(ids)) {
+    const current = getCachedExpensesLocally();
+    const filtered = current.filter(item => !ids.includes(item._id));
+    setCachedExpensesLocally(filtered);
+  }
+
+  return result;
 };

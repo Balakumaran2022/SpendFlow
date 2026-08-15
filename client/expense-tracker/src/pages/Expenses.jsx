@@ -1,19 +1,22 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Receipt } from "lucide-react";
 import { ExpenseList } from "../components/expense/ExpenseList";
 import { ExpenseFilters } from "../components/expense/ExpenseFilters";
 import { useState, useEffect } from "react";
-import { fetchExpenses } from "../services/api";
+import { fetchExpenses, getCachedExpensesLocally } from "../services/api";
 
 export default function Expenses() {
-  const [expenses, setExpenses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // INSTANT 0ms LOAD FROM LOCAL CACHE
+  const [expenses, setExpenses] = useState(() => getCachedExpensesLocally());
+  const [loading, setLoading] = useState(() => expenses.length === 0);
   const [filters, setFilters] = useState({ search: '', category: 'All Categories', timeframe: 'All Time' });
 
-  const loadExpenses = async () => {
+  const loadExpenses = async (force = false) => {
     try {
-      const response = await fetchExpenses();
-      setExpenses(response.data || []);
+      const response = await fetchExpenses(force);
+      if (response.data) {
+        setExpenses(response.data);
+      }
     } catch (error) {
       console.error("Error loading expenses:", error);
     } finally {
@@ -23,13 +26,13 @@ export default function Expenses() {
 
   useEffect(() => {
     loadExpenses();
-    const handleExpenseAdded = () => loadExpenses();
+    const handleExpenseAdded = () => loadExpenses(true);
     window.addEventListener('expenseAdded', handleExpenseAdded);
     return () => window.removeEventListener('expenseAdded', handleExpenseAdded);
   }, []);
 
   const filteredExpenses = expenses.filter(exp => {
-    if (filters.search && !exp.title.toLowerCase().includes(filters.search.toLowerCase()) && !exp.description?.toLowerCase().includes(filters.search.toLowerCase())) return false;
+    if (filters.search && !exp.title?.toLowerCase().includes(filters.search.toLowerCase()) && !exp.description?.toLowerCase().includes(filters.search.toLowerCase())) return false;
     if (filters.category !== 'All Categories' && exp.category !== filters.category) return false;
     if (filters.timeframe !== 'All Time') {
       const expDate = new Date(exp.date);
@@ -67,7 +70,6 @@ export default function Expenses() {
   return (
     <div className="mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6">
       <div className="flex items-center gap-3 mb-4 sm:mb-6">
-
         <div className="bg-blue-100 p-2.5 rounded-xl">
           <Receipt className="w-6 h-6 text-blue-600" />
         </div>
@@ -83,9 +85,9 @@ export default function Expenses() {
         </CardHeader>
         <CardContent className="p-6">
           {loading ? (
-            <div className="py-12 text-center text-slate-500">Loading your expenses...</div>
+            <div className="py-12 text-center text-slate-500 font-medium">Loading your expenses...</div>
           ) : (
-            <ExpenseList expenses={filteredExpenses} onRefresh={loadExpenses} />
+            <ExpenseList expenses={filteredExpenses} onRefresh={() => loadExpenses(true)} />
           )}
         </CardContent>
       </Card>

@@ -4,46 +4,15 @@ import Expense from '../models/Expense.js';
 
 const connectionMap = new Map();
 
-/**
- * Automatically URL-encodes special characters (like @, #, %) in MongoDB passwords to prevent URI parsing / ENOTFOUND errors
- */
-export const sanitizeMongoUri = (uri) => {
-  if (!uri || typeof uri !== 'string') return uri;
-  const trimmed = uri.trim();
-
-  // Pattern: mongodb(+srv)://username:password@hostname/dbname
-  const match = trimmed.match(/^(mongodb(?:\+srv)?:\/\/)([^:]+):(.+)$/i);
-  if (!match) return trimmed;
-
-  const scheme = match[1];
-  const username = match[2];
-  const rest = match[3]; // password@hostname/dbname...
-
-  const lastAtIndex = rest.lastIndexOf('@');
-  if (lastAtIndex === -1) return trimmed;
-
-  const rawPassword = rest.substring(0, lastAtIndex);
-  const hostAndPath = rest.substring(lastAtIndex + 1);
-
-  try {
-    const decodedPassword = decodeURIComponent(rawPassword);
-    const encodedPassword = encodeURIComponent(decodedPassword);
-    return `${scheme}${username}:${encodedPassword}@${hostAndPath}`;
-  } catch (_) {
-    const encodedPassword = encodeURIComponent(rawPassword);
-    return `${scheme}${username}:${encodedPassword}@${hostAndPath}`;
-  }
-};
-
-// Flexible MongoDB Atlas Connection URL Regex (Supports passwords with @ or special characters)
-export const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:.+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}(\/[^\s?]*)?(\?.*)?$/;
+// Strict MongoDB Atlas Connection URL Regex
+export const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[^\s\/]+(\/[^\s?]*)?(\?.*)?$/;
 
 /**
  * Get or establish Mongoose connection for a given MongoDB URI
  */
 export const getCustomConnection = async (mongoUri) => {
   if (!mongoUri || typeof mongoUri !== 'string') return null;
-  const uri = sanitizeMongoUri(mongoUri);
+  const uri = mongoUri.trim();
 
   if (connectionMap.has(uri)) {
     const conn = connectionMap.get(uri);
@@ -52,8 +21,8 @@ export const getCustomConnection = async (mongoUri) => {
 
   try {
     const conn = await mongoose.createConnection(uri, {
-      serverSelectionTimeoutMS: 6000,
-      connectTimeoutMS: 6000,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
     }).asPromise();
 
     connectionMap.set(uri, conn);
@@ -72,28 +41,28 @@ export const testMongoConnection = async (mongoUri) => {
     throw new Error('Please provide a valid MongoDB Atlas connection string');
   }
 
-  const sanitizedUri = sanitizeMongoUri(mongoUri);
-
-  if (!MONGO_ATLAS_REGEX.test(sanitizedUri)) {
-    throw new Error('Invalid MongoDB Atlas URL format! Missing cluster hostname domain (e.g. mongodb+srv://username:password@cluster0.xxxx.mongodb.net/dbname).');
+  const trimmedUri = mongoUri.trim();
+  
+  if (!MONGO_ATLAS_REGEX.test(trimmedUri)) {
+    throw new Error('Invalid MongoDB Atlas URL format! Missing username, password, or cluster hostname. Format must be: mongodb+srv://username:password@cluster.mongodb.net/dbname. If you do not have a private database, leave this field empty.');
   }
 
   let tempConn;
   try {
-    tempConn = await mongoose.createConnection(sanitizedUri, {
-      serverSelectionTimeoutMS: 6000,
-      connectTimeoutMS: 6000,
+    tempConn = await mongoose.createConnection(trimmedUri, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
     }).asPromise();
 
-    // Verify database ping command directly on target database (works for non-admin user roles)
-    await tempConn.db.command({ ping: 1 });
+    // Verify database ping
+    await tempConn.db.admin().ping();
     await tempConn.close();
     return true;
   } catch (err) {
     if (tempConn) {
       try { await tempConn.close(); } catch (_) {}
     }
-    throw new Error(`MongoDB Atlas Connection Failed: ${err.message}. Please check database username and password in MongoDB Atlas.`);
+    throw new Error(`MongoDB Atlas Connection Failed: ${err.message}. Please check username, password, and ensure Network Access (0.0.0.0/0) is enabled on your MongoDB Atlas cluster. Or leave empty for default storage.`);
   }
 };
 

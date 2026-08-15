@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { PieChart as PieChartIcon, TrendingUp, BarChart3, Download } from "lucide-react";
 import { useState, useEffect } from "react";
-import { fetchExpenses } from "../services/api";
+import { fetchExpenses, getCachedExpensesLocally } from "../services/api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -22,14 +22,17 @@ import {
 const COLORS = ['#2563EB', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#64748B'];
 
 export default function Reports() {
-  const [expenses, setExpenses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // INSTANT 0ms LOAD FROM LOCAL CACHE
+  const [expenses, setExpenses] = useState(() => getCachedExpensesLocally());
+  const [loading, setLoading] = useState(() => expenses.length === 0);
 
   useEffect(() => {
     const loadExpenses = async () => {
       try {
         const response = await fetchExpenses();
-        setExpenses(response.data || []);
+        if (response.data) {
+          setExpenses(response.data);
+        }
       } catch (error) {
         console.error("Error loading expenses:", error);
       } finally {
@@ -38,6 +41,7 @@ export default function Reports() {
     };
     loadExpenses();
   }, []);
+
 
   // Process data for Category Pie Chart
   const categoryData = expenses.reduce((acc, curr) => {

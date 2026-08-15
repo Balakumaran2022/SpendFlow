@@ -14,11 +14,12 @@ import {
   Search,
   Check
 } from "lucide-react";
-import { fetchExpenses, bulkDeleteExpenses, deleteExpense } from "../services/api";
+import { fetchExpenses, bulkDeleteExpenses, deleteExpense, getCachedExpensesLocally } from "../services/api";
 
 export default function BulkDelete() {
-  const [expenses, setExpenses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // INSTANT 0ms LOAD FROM LOCAL CACHE
+  const [expenses, setExpenses] = useState(() => getCachedExpensesLocally());
+  const [loading, setLoading] = useState(() => expenses.length === 0);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -28,11 +29,12 @@ export default function BulkDelete() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [notification, setNotification] = useState(null);
 
-  const loadExpenses = async () => {
-    setLoading(true);
+  const loadExpenses = async (force = false) => {
     try {
-      const response = await fetchExpenses(true);
-      setExpenses(response.data || []);
+      const response = await fetchExpenses(force);
+      if (response.data) {
+        setExpenses(response.data);
+      }
     } catch (error) {
       console.error("Error loading expenses for bulk delete:", error);
       showNotification("Failed to load expenses. Please check network connection.", "error");
@@ -43,6 +45,7 @@ export default function BulkDelete() {
 
   useEffect(() => {
     loadExpenses();
+
   }, []);
 
   const showNotification = (message, type = 'success') => {
