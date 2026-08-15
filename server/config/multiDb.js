@@ -4,8 +4,8 @@ import Expense from '../models/Expense.js';
 
 const connectionMap = new Map();
 
-// Strict MongoDB Atlas Connection URL Regex
-export const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[^\s\/]+(\/[^\s?]*)?(\?.*)?$/;
+// Strict MongoDB Atlas Connection URL Regex (Requires valid username, password & domain host like .mongodb.net)
+export const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}(\/[^\s?]*)?(\?.*)?$/;
 
 /**
  * Get or establish Mongoose connection for a given MongoDB URI
@@ -44,7 +44,7 @@ export const testMongoConnection = async (mongoUri) => {
   const trimmedUri = mongoUri.trim();
   
   if (!MONGO_ATLAS_REGEX.test(trimmedUri)) {
-    throw new Error('Invalid MongoDB Atlas URL format! Missing username, password, or cluster hostname. Format must be: mongodb+srv://username:password@cluster.mongodb.net/dbname. If you do not have a private database, leave this field empty.');
+    throw new Error('Invalid MongoDB Atlas URL format! Your cluster hostname is missing a valid domain like .mongodb.net (Expected: mongodb+srv://username:password@cluster0.xxxx.mongodb.net/dbname).');
   }
 
   let tempConn;
@@ -62,7 +62,7 @@ export const testMongoConnection = async (mongoUri) => {
     if (tempConn) {
       try { await tempConn.close(); } catch (_) {}
     }
-    throw new Error(`MongoDB Atlas Connection Failed: ${err.message}. Please check username, password, and ensure Network Access (0.0.0.0/0) is enabled on your MongoDB Atlas cluster. Or leave empty for default storage.`);
+    throw new Error(`MongoDB Atlas Connection Failed: ${err.message}. Please check username, password, and verify 'Network Access' (0.0.0.0/0) is enabled on your MongoDB Atlas cluster.`);
   }
 };
 
