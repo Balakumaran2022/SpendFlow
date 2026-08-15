@@ -14,7 +14,7 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  // Strict MongoDB Atlas Connection URL Regex
+  // MongoDB Atlas Connection URL Regex
   const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[^\s\/]+(\/[^\s?]*)?(\?.*)?$/;
 
   const handleSubmit = async (e) => {
@@ -23,7 +23,7 @@ export default function Register() {
 
     // Ensure required basic fields
     if (!name.trim() || !email.trim() || !password || !confirmPassword) {
-      setError('All fields are required. Please fill in all fields.');
+      setError('Name, Email, Password, and Confirm Password are required.');
       return;
     }
 
@@ -37,13 +37,8 @@ export default function Register() {
       return;
     }
 
-    // STRICT REQUIRED MONGODB ATLAS URL REGEX VALIDATION
-    if (!mongoUri.trim()) {
-      setError('MongoDB Atlas URL is required to create an account.');
-      return;
-    }
-
-    if (!MONGO_ATLAS_REGEX.test(mongoUri.trim())) {
+    // IF CUSTOM MONGODB ATLAS URL IS PROVIDED, VALIDATE REGEX
+    if (mongoUri.trim() && !MONGO_ATLAS_REGEX.test(mongoUri.trim())) {
       setError('Invalid MongoDB Atlas URL format! Must be a valid connection string (e.g. mongodb+srv://username:password@cluster.mongodb.net/dbname)');
       return;
     }
@@ -164,20 +159,18 @@ export default function Register() {
             </div>
           </div>
 
-          {/* REQUIRED CUSTOM MONGO ATLAS URL FIELD */}
+          {/* CUSTOM MONGO ATLAS URL FIELD (NO HTML5 BROWSER TOOLTIP POPUP) */}
           <div className="space-y-1 pt-1">
             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <DatabaseZap className="w-3.5 h-3.5 text-indigo-600" />
-                MongoDB Atlas URL
+                MongoDB Atlas URL <span className="text-red-500">*</span>
               </span>
-              <span className="text-red-500 text-[10px] font-bold uppercase">* Required</span>
             </label>
             <div className="relative">
               <Database className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                required
                 value={mongoUri}
                 onChange={(e) => setMongoUri(e.target.value)}
                 placeholder="mongodb+srv://user:pass@cluster.mongodb.net/dbname"
@@ -185,7 +178,7 @@ export default function Register() {
               />
             </div>
             <p className="text-[11px] text-slate-500 pl-1 leading-snug">
-              Must be a valid MongoDB Atlas connection string (`mongodb+srv://...`). Connection will be tested before account creation.
+              If provided, account and expenses are stored 100% separately inside your private MongoDB database.
             </p>
           </div>
 

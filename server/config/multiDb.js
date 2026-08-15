@@ -1,10 +1,37 @@
 import mongoose from 'mongoose';
+import User from '../models/User.js';
 import Expense from '../models/Expense.js';
 
 const connectionMap = new Map();
 
 // Strict MongoDB Atlas Connection URL Regex
 export const MONGO_ATLAS_REGEX = /^mongodb(\+srv)?:\/\/[^\s:]+:[^\s@]+@[^\s\/]+(\/[^\s?]*)?(\?.*)?$/;
+
+/**
+ * Get or establish Mongoose connection for a given MongoDB URI
+ */
+export const getCustomConnection = async (mongoUri) => {
+  if (!mongoUri || typeof mongoUri !== 'string') return null;
+  const uri = mongoUri.trim();
+
+  if (connectionMap.has(uri)) {
+    const conn = connectionMap.get(uri);
+    if (conn.readyState === 1) return conn;
+  }
+
+  try {
+    const conn = await mongoose.createConnection(uri, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
+    }).asPromise();
+
+    connectionMap.set(uri, conn);
+    return conn;
+  } catch (err) {
+    console.error(`Failed to connect to custom MongoDB Atlas (${uri}):`, err.message);
+    return null;
+  }
+};
 
 /**
  * Test a MongoDB connection URL to verify if it connects successfully
@@ -40,33 +67,23 @@ export const testMongoConnection = async (mongoUri) => {
 };
 
 /**
+ * Get User Mongoose Model for a specific mongoUri
+ */
+export const getUserModelForUri = async (mongoUri) => {
+  if (!mongoUri || mongoUri.trim() === '') {
+    return User;
+  }
+  const conn = await getCustomConnection(mongoUri);
+  return conn ? conn.model('User', User.schema) : User;
+};
+
+/**
  * Get Expense Mongoose Model for a specific user
- * If user has custom mongoUri, return Expense model bound to their private Atlas database
  */
 export const getExpenseModelForUser = async (user) => {
   if (!user || !user.mongoUri || user.mongoUri.trim() === '') {
     return Expense;
   }
-
-  const uri = user.mongoUri.trim();
-
-  if (connectionMap.has(uri)) {
-    const conn = connectionMap.get(uri);
-    if (conn.readyState === 1) {
-      return conn.model('Expense', Expense.schema);
-    }
-  }
-
-  try {
-    const conn = await mongoose.createConnection(uri, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000,
-    }).asPromise();
-
-    connectionMap.set(uri, conn);
-    return conn.model('Expense', Expense.schema);
-  } catch (err) {
-    console.error(`Failed to connect to user custom MongoDB Atlas (${user.email}):`, err.message);
-    return Expense;
-  }
+  const conn = await getCustomConnection(user.mongoUri);
+  return conn ? conn.model('Expense', Expense.schema) : Expense;
 };

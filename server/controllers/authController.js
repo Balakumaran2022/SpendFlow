@@ -1,15 +1,15 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Expense from '../models/Expense.js';
-import { testMongoConnection } from '../config/multiDb.js';
+import { testMongoConnection, getUserModelForUri } from '../config/multiDb.js';
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'balaspend_secret_key_123', {
-    expiresIn: '3650d', // Long-lived token so user stays logged in permanently
+const generateToken = (id, mongoUri = '') => {
+  return jwt.sign({ id, mongoUri }, process.env.JWT_SECRET || 'balaspend_secret_key_123', {
+    expiresIn: '3650d',
   });
 };
 
-// Seed default user (balaavcce@gmail.com / 12345678) and assign unassigned expenses
+// Seed default user (balaavcce@gmail.com / 12345678)
 export const seedDefaultUser = async () => {
   try {
     const defaultEmail = 'balaavcce@gmail.com';
@@ -25,7 +25,6 @@ export const seedDefaultUser = async () => {
       console.log('Default user created successfully!');
     }
 
-    // Assign any existing unassigned expenses to default user
     if (defaultUser) {
       const result = await Expense.updateMany(
         { $or: [{ user: { $exists: false } }, { user: null }] },
@@ -49,15 +48,13 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
     }
 
-    const userExists = await User.findOne({ email: email.toLowerCase() });
-    if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists with this email' });
-    }
+    const trimmedEmail = email.toLowerCase().trim();
+    const trimmedUri = mongoUri ? mongoUri.trim() : '';
 
-    // STRICT VALIDATION: If custom mongoUri is provided, test connection before allowing registration
-    if (mongoUri && mongoUri.trim() !== '') {
+    // If custom mongoUri is provided, validate format & test connection
+    if (trimmedUri !== '') {
       try {
-        await testMongoConnection(mongoUri.trim());
+        await testMongoConnection(trimmedUri);
       } catch (connErr) {
         return res.status(400).json({
           success: false,
@@ -66,12 +63,33 @@ export const registerUser = async (req, res) => {
       }
     }
 
-    const user = await User.create({
+    // Get Target User Model (Primary or Custom MongoDB Atlas)
+    const TargetUserModel = await getUserModelForUri(trimmedUri);
+
+    const userExists = await TargetUserModel.findOne({ email: trimmedEmail });
+    if (userExists) {
+      return res.status(400).json({ success: false, message: 'User already exists with this email' });
+    }
+
+    // Create User Document inside target MongoDB Atlas database
+    const user = await TargetUserModel.create({
       name,
-      email: email.toLowerCase(),
+      email: trimmedEmail,
       password,
-      mongoUri: mongoUri ? mongoUri.trim() : '',
+      mongoUri: trimmedUri,
     });
+
+    // If custom DB, save lightweight pointer in master DB for fast login resolution
+    if (trimmedUri !== '') {
+      try {
+        await User.create({
+          name,
+          email: trimmedEmail,
+          password: user.password, // hashed password
+          mongoUri: trimmedUri,
+        });
+      } catch (_) {}
+    }
 
     res.status(201).json({
       success: true,
@@ -81,7 +99,7 @@ export const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         mongoUri: user.mongoUri,
-        token: generateToken(user._id),
+        token: generateToken(user._id, user.mongoUri),
       },
     });
   } catch (error) {
@@ -98,7 +116,19 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please enter email and password' });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const trimmedEmail = email.toLowerCase().trim();
+
+    // 1. Check Master Registry User Document
+    let masterUser = await User.findOne({ email: trimmedEmail });
+    let mongoUri = masterUser ? masterUser.mongoUri : '';
+
+    // 2. Get Target UserModel (Bound to user's MongoDB Atlas if mongoUri exists)
+    const TargetUserModel = await getUserModelForUri(mongoUri);
+    let user = await TargetUserModel.findOne({ email: trimmedEmail });
+
+    if (!user && masterUser) {
+      user = masterUser;
+    }
 
     if (user && (await user.matchPassword(password))) {
       return res.status(200).json({
@@ -108,8 +138,8 @@ export const loginUser = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
-          mongoUri: user.mongoUri,
-          token: generateToken(user._id),
+          mongoUri: user.mongoUri || mongoUri,
+          token: generateToken(user._id, user.mongoUri || mongoUri),
         },
       });
     }
@@ -123,7 +153,11 @@ export const loginUser = async (req, res) => {
 // Get Current User Profile
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    const TargetUserModel = await getUserModelForUri(req.user.mongoUri);
+    let user = await TargetUserModel.findById(req.user._id).select('-password');
+    if (!user) {
+      user = await User.findById(req.user._id).select('-password');
+    }
     res.status(200).json({
       success: true,
       data: user,
