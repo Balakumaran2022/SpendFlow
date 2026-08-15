@@ -39,7 +39,7 @@ export const seedDefaultUser = async () => {
   }
 };
 
-// Register User (STRICTLY REQUIRES MONGODB ATLAS URL)
+// Register or Update User Account
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, mongoUri } = req.body;
@@ -67,32 +67,44 @@ export const registerUser = async (req, res) => {
     // Get Target User Model bound to user's MongoDB Atlas connection
     const TargetUserModel = await getUserModelForUri(trimmedUri);
 
-    const userExists = await TargetUserModel.findOne({ email: trimmedEmail });
-    if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists with this email' });
-    }
-
-    // Create User Document inside target MongoDB Atlas database
-    const user = await TargetUserModel.create({
-      name,
-      email: trimmedEmail,
-      password, // Pre-save hook hashes password ONCE
-      mongoUri: trimmedUri,
-    });
-
-    // Save lightweight pointer in master DB for fast login resolution
-    try {
-      await User.create({
+    let user = await TargetUserModel.findOne({ email: trimmedEmail });
+    if (user) {
+      // Account exists: update name, password, and mongoUri
+      user.name = name;
+      user.password = password; // Pre-save hook hashes password ONCE
+      user.mongoUri = trimmedUri;
+      await user.save();
+    } else {
+      // Create new User Document inside target MongoDB Atlas database
+      user = await TargetUserModel.create({
         name,
         email: trimmedEmail,
-        password, // Pass plaintext password so pre-save hook hashes ONCE (fixes double-hashing bug)
+        password,
         mongoUri: trimmedUri,
       });
+    }
+
+    // Save/update lightweight pointer in master DB for fast login resolution
+    try {
+      let masterUser = await User.findOne({ email: trimmedEmail });
+      if (masterUser) {
+        masterUser.name = name;
+        masterUser.password = password; // Pre-save hook hashes password ONCE
+        masterUser.mongoUri = trimmedUri;
+        await masterUser.save();
+      } else {
+        await User.create({
+          name,
+          email: trimmedEmail,
+          password,
+          mongoUri: trimmedUri,
+        });
+      }
     } catch (_) {}
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'Account registered/updated successfully',
       data: {
         _id: user._id,
         name: user.name,
