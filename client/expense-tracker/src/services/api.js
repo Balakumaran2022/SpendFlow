@@ -31,11 +31,10 @@ const fetchWithFallback = async (endpoint, options = {}) => {
   const primaryEndpoint = `${PRIMARY_URL}${endpoint}`;
   try {
     const res = await fetch(primaryEndpoint, requestOptions);
-    if (res.ok) return res;
-    throw new Error(`Primary request failed with status ${res.status}`);
+    return res;
   } catch (err) {
     if (PRIMARY_URL !== FALLBACK_URL) {
-      console.warn("Primary API failed, attempting fallback to Render server:", err.message);
+      console.warn("Primary API network error, attempting fallback to Render server:", err.message);
       const fallbackEndpoint = `${FALLBACK_URL}${endpoint}`;
       return await fetch(fallbackEndpoint, requestOptions);
     }
@@ -51,7 +50,7 @@ export const loginApi = async (credentials) => {
   });
   const data = await response.json();
   if (!response.ok || !data.success) {
-    throw new Error(data.message || 'Login failed');
+    throw new Error(data.message || 'Login failed. Please check credentials.');
   }
   return data;
 };
@@ -63,7 +62,7 @@ export const registerApi = async (userData) => {
   });
   const data = await response.json();
   if (!response.ok || !data.success) {
-    throw new Error(data.message || 'Registration failed');
+    throw new Error(data.message || 'Registration failed. Please check inputs.');
   }
   return data;
 };
