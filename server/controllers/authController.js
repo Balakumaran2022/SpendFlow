@@ -39,7 +39,7 @@ export const seedDefaultUser = async () => {
   }
 };
 
-// Register User (STRICTLY REQUIRES CUSTOM MONGODB ATLAS URL)
+// Register User (STRICTLY REQUIRES MONGODB ATLAS URL)
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, mongoUri } = req.body;
@@ -76,7 +76,7 @@ export const registerUser = async (req, res) => {
     const user = await TargetUserModel.create({
       name,
       email: trimmedEmail,
-      password,
+      password, // Pre-save hook hashes password ONCE
       mongoUri: trimmedUri,
     });
 
@@ -85,7 +85,7 @@ export const registerUser = async (req, res) => {
       await User.create({
         name,
         email: trimmedEmail,
-        password: user.password, // hashed password
+        password, // Pass plaintext password so pre-save hook hashes ONCE (fixes double-hashing bug)
         mongoUri: trimmedUri,
       });
     } catch (_) {}
@@ -121,24 +121,40 @@ export const loginUser = async (req, res) => {
     let masterUser = await User.findOne({ email: trimmedEmail });
     let mongoUri = masterUser ? masterUser.mongoUri : '';
 
-    // 2. Get Target UserModel (Bound to user's MongoDB Atlas if mongoUri exists)
-    const TargetUserModel = await getUserModelForUri(mongoUri);
-    let user = await TargetUserModel.findOne({ email: trimmedEmail });
-
-    if (!user && masterUser) {
-      user = masterUser;
+    // 2. Try Target User Document in Custom MongoDB Database First
+    if (mongoUri && mongoUri !== '') {
+      try {
+        const TargetUserModel = await getUserModelForUri(mongoUri);
+        let targetUser = await TargetUserModel.findOne({ email: trimmedEmail });
+        if (targetUser && (await targetUser.matchPassword(password))) {
+          return res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            data: {
+              _id: targetUser._id,
+              name: targetUser.name,
+              email: targetUser.email,
+              mongoUri: targetUser.mongoUri || mongoUri,
+              token: generateToken(targetUser._id, targetUser.mongoUri || mongoUri),
+            },
+          });
+        }
+      } catch (err) {
+        console.warn('Error verifying custom DB user during login:', err.message);
+      }
     }
 
-    if (user && (await user.matchPassword(password))) {
+    // 3. Try Master DB User Document
+    if (masterUser && (await masterUser.matchPassword(password))) {
       return res.status(200).json({
         success: true,
         message: 'Login successful',
         data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          mongoUri: user.mongoUri || mongoUri,
-          token: generateToken(user._id, user.mongoUri || mongoUri),
+          _id: masterUser._id,
+          name: masterUser.name,
+          email: masterUser.email,
+          mongoUri: masterUser.mongoUri,
+          token: generateToken(masterUser._id, masterUser.mongoUri),
         },
       });
     }
