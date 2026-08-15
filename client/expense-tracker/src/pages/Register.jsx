@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Database, UserPlus, AlertCircle, ArrowLeft, DatabaseZap, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -9,6 +9,14 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [mongoUri, setMongoUri] = useState('');
+  
+  // Eye View Password States
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Security Notice Modal State (Shown before revealing registration form)
+  const [showNoticeModal, setShowNoticeModal] = useState(true);
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -55,9 +63,64 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center items-center px-4 py-8">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center items-center px-4 py-8 relative">
       
-      {/* Clean White Simple Card */}
+      {/* 1. NO FORGOT PASSWORD SECURITY NOTICE MODAL DIALOG */}
+      {showNoticeModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-white border border-slate-200 max-w-md w-full rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 text-slate-900">
+            
+            {/* Modal Icon & Header */}
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
+                <ShieldAlert className="w-6 h-6 stroke-[2.5]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900 leading-tight">
+                  Important Security Notice
+                </h3>
+                <p className="text-xs text-slate-500">Please read carefully before proceeding</p>
+              </div>
+            </div>
+
+            {/* Warning Message Box */}
+            <div className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 text-xs text-amber-900 space-y-2">
+              <p className="font-bold flex items-center gap-1.5 text-amber-800 text-sm">
+                ⚠️ No Password Reset Option
+              </p>
+              <p className="leading-relaxed text-slate-700">
+                There is <strong>NO forgotten password or password recovery option</strong> in this application.
+              </p>
+              <p className="leading-relaxed text-slate-700">
+                Please make sure to <strong>write down and note down your password safely</strong> before creating an account.
+              </p>
+            </div>
+
+            {/* Action Buttons: Cancel (Go Back to Login) vs OK (Show Form) */}
+            <div className="flex items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="flex-1 py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all border-0 cursor-pointer active:scale-95 text-center"
+              >
+                Cancel & Go Back
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setShowNoticeModal(false)}
+                style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
+                className="flex-1 py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm shadow-md hover:bg-blue-700 transition-all border-0 cursor-pointer active:scale-95 text-center"
+              >
+                OK, I Understand
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* 2. Clean White Simple Registration Card (Visible after acknowledging notice) */}
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
         
         {/* Header */}
@@ -121,7 +184,7 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Password */}
+          {/* Password with Eye View Password Toggle */}
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Password <span className="text-red-500">*</span>
@@ -129,18 +192,26 @@ export default function Register() {
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 characters"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
+                className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? "Hide Password" : "Show Password"}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 border-0 bg-transparent cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4 text-slate-600" /> : <Eye className="w-4 h-4 text-slate-400" />}
+              </button>
             </div>
           </div>
 
-          {/* Confirm Password */}
+          {/* Confirm Password with Eye View Password Toggle */}
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
               Confirm Password <span className="text-red-500">*</span>
@@ -148,18 +219,26 @@ export default function Register() {
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 required
                 minLength={6}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-enter password"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
+                className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-2xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition-all font-medium"
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                title={showConfirmPassword ? "Hide Password" : "Show Password"}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 border-0 bg-transparent cursor-pointer"
+              >
+                {showConfirmPassword ? <EyeOff className="w-4 h-4 text-slate-600" /> : <Eye className="w-4 h-4 text-slate-400" />}
+              </button>
             </div>
           </div>
 
-          {/* CUSTOM MONGO ATLAS URL FIELD (NO HTML5 BROWSER TOOLTIP POPUP) */}
+          {/* CUSTOM MONGO ATLAS URL FIELD */}
           <div className="space-y-1 pt-1">
             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
