@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Receipt, PieChart, Trash2, Plus, LogOut } from 'lucide-react';
+import { Home, Receipt, PieChart, Trash2, Plus, LogOut, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../../context/AuthContext';
 

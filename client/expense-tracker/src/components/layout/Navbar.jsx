@@ -14,14 +14,15 @@ export function Navbar() {
           {/* Logo & Brand Title - Always Visible */}
           <div className="flex items-center gap-2 sm:gap-6 shrink-0">
             <div className="flex items-center gap-2">
-              <div 
-                style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0"
+              <div
+                style={{ background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)', color: '#ffffff' }}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/30 shrink-0"
               >
                 <Wallet className="w-5 h-5 stroke-[2.5]" style={{ color: '#ffffff' }} />
               </div>
-              <span className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
-                BalaSpend
+              <span className="text-base sm:text-xl font-extrabold tracking-tight"
+                style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                SpendFlow
               </span>
             </div>
 

@@ -6,25 +6,39 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createExpense, updateExpense } from '../../services/api';
 import { 
-  Utensils, 
-  Plane, 
-  ShoppingBag, 
-  FileText, 
-  HeartPulse, 
-  Film, 
-  MoreHorizontal
+  Utensils, Plane, ShoppingBag, FileText, HeartPulse, Film, MoreHorizontal, Plus, Tag, X
 } from "lucide-react";
+
+const DEFAULT_CATEGORIES = [
+  { value: 'Food', icon: Utensils, color: 'text-amber-500' },
+  { value: 'Travel', icon: Plane, color: 'text-sky-500' },
+  { value: 'Shopping', icon: ShoppingBag, color: 'text-pink-500' },
+  { value: 'Bills', icon: FileText, color: 'text-emerald-500' },
+  { value: 'Health', icon: HeartPulse, color: 'text-red-500' },
+  { value: 'Entertainment', icon: Film, color: 'text-purple-500' },
+  { value: 'Others', icon: MoreHorizontal, color: 'text-slate-500' },
+];
 
 export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
   const [loading, setLoading] = useState(false);
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [customCategoryInput, setCustomCategoryInput] = useState('');
+  const [customCategories, setCustomCategories] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('spendflow_custom_cats') || '[]'); } catch { return []; }
+  });
   const [formData, setFormData] = useState({
     title: '',
     amount: '',
     category: '',
-    description: ''
+    description: '',
+    date: new Date().toISOString().split('T')[0]
   });
 
   const isEditMode = Boolean(initialData);
+  const allCategories = [
+    ...DEFAULT_CATEGORIES,
+    ...customCategories.map(c => ({ value: c, icon: Tag, color: 'text-indigo-500' }))
+  ];
 
   useEffect(() => {
     if (initialData) {
@@ -32,16 +46,16 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
         title: initialData.title || '',
         amount: initialData.amount || '',
         category: initialData.category || '',
-        description: initialData.description || ''
+        description: initialData.description || '',
+        date: initialData.date
+          ? new Date(initialData.date).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0]
       });
     } else {
-      setFormData({
-        title: '',
-        amount: '',
-        category: '',
-        description: ''
-      });
+      setFormData({ title: '', amount: '', category: '', description: '', date: new Date().toISOString().split('T')[0] });
     }
+    setShowCustomInput(false);
+    setCustomCategoryInput('');
   }, [initialData, isOpen]);
 
   const handleChange = (e) => {
@@ -49,48 +63,61 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
   };
 
   const handleCategoryChange = (val) => {
+    if (val === '__add_custom__') {
+      setShowCustomInput(true);
+      return;
+    }
     setFormData({ ...formData, category: val });
   };
 
-  // Validation: 3 fields (title, amount, category) are strictly required. Notes/description is optional.
+  const handleAddCustomCategory = () => {
+    const trimmed = customCategoryInput.trim();
+    if (!trimmed) return;
+    const updated = [...new Set([...customCategories, trimmed])];
+    setCustomCategories(updated);
+    localStorage.setItem('spendflow_custom_cats', JSON.stringify(updated));
+    setFormData({ ...formData, category: trimmed });
+    setShowCustomInput(false);
+    setCustomCategoryInput('');
+  };
+
+  const handleRemoveCustomCategory = (cat) => {
+    const updated = customCategories.filter(c => c !== cat);
+    setCustomCategories(updated);
+    localStorage.setItem('spendflow_custom_cats', JSON.stringify(updated));
+    if (formData.category === cat) setFormData({ ...formData, category: '' });
+  };
+
   const isTitleValid = Boolean(formData.title && formData.title.trim() !== '');
   const isAmountValid = Boolean(formData.amount !== '' && !isNaN(formData.amount) && Number(formData.amount) > 0);
   const isCategoryValid = Boolean(formData.category && formData.category.trim() !== '');
-  
-  const isFormValid = isTitleValid && isAmountValid && isCategoryValid;
+  const isDateValid = Boolean(formData.date);
+  const isFormValid = isTitleValid && isAmountValid && isCategoryValid && isDateValid;
   const isSaveDisabled = loading || !isFormValid;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFormValid) return;
-
     try {
       setLoading(true);
+      // Parse as local noon to avoid timezone boundary shift (safe for IST UTC+5:30)
+      const [yr, mo, dy] = formData.date.split('-').map(Number);
+      const localNoon = new Date(yr, mo - 1, dy, 12, 0, 0);
       const payload = {
         ...formData,
         amount: Number(formData.amount),
+        date: localNoon.toISOString(),
       };
-      
-      if (!isEditMode) {
-        payload.date = new Date().toISOString();
-      }
-
       if (isEditMode) {
         await updateExpense(initialData._id || initialData.id, payload);
       } else {
         await createExpense(payload);
       }
-      
-      // Reset form
       if (!isEditMode) {
-        setFormData({ title: '', amount: '', category: '', description: '' });
+        setFormData({ title: '', amount: '', category: '', description: '', date: new Date().toISOString().split('T')[0] });
       }
-      
-      // Refresh dashboard list
       window.dispatchEvent(new Event('expenseAdded'));
       if (onRefresh) onRefresh();
-      
-      // Close modal
       onClose();
     } catch (error) {
       console.error(isEditMode ? "Failed to update expense:" : "Failed to add expense:", error);
@@ -102,121 +129,142 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px] bg-white text-slate-900 border-slate-200 shadow-2xl rounded-2xl p-6">
+      <DialogContent className="sm:max-w-[440px] bg-white text-slate-900 border-slate-200 shadow-2xl rounded-2xl p-6">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-slate-900">
               {isEditMode ? "Edit Expense" : "Add New Expense"}
             </DialogTitle>
             <DialogDescription className="text-slate-500 text-xs mt-1">
-              {isEditMode 
-                ? "Update the details of your expense below. Click save when you're done." 
-                : "Enter the details of your expense here. Click save when you're done."}
+              {isEditMode
+                ? "Update the details of your expense below."
+                : "Enter the details of your expense. Past dates are allowed."}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            {/* Title (Required) */}
+            {/* Title */}
             <div className="grid gap-1.5">
               <label htmlFor="title" className="text-xs font-semibold text-slate-700">
                 Title <span className="text-red-500">*</span>
               </label>
-              <Input 
-                id="title" 
-                value={formData.title} 
-                onChange={handleChange} 
-                required 
-                placeholder="e.g. Team Lunch / Grocery" 
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Team Lunch / Grocery"
                 className="bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-11"
               />
             </div>
 
-            {/* Amount (Required) */}
-            <div className="grid gap-1.5">
-              <label htmlFor="amount" className="text-xs font-semibold text-slate-700">
-                Amount (₹) <span className="text-red-500">*</span>
-              </label>
-              <Input 
-                id="amount" 
-                value={formData.amount} 
-                onChange={handleChange} 
-                required 
-                type="number" 
-                min="0.01" 
-                step="0.01" 
-                placeholder="0.00" 
-                className="bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-11 font-semibold"
-              />
+            {/* Amount + Date side by side */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-1.5">
+                <label htmlFor="amount" className="text-xs font-semibold text-slate-700">
+                  Amount (₹) <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  id="amount"
+                  value={formData.amount}
+                  onChange={handleChange}
+                  required
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  placeholder="0.00"
+                  className="bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-11 font-semibold"
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <label htmlFor="date" className="text-xs font-semibold text-slate-700">
+                  Date <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  max={new Date().toISOString().split('T')[0]}
+                  onChange={handleChange}
+                  required
+                  className="bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-11"
+                />
+              </div>
             </div>
 
-            {/* Category (Required) */}
+            {/* Category */}
             <div className="grid gap-1.5">
               <label htmlFor="category" className="text-xs font-semibold text-slate-700">
                 Category <span className="text-red-500">*</span>
               </label>
-              <Select value={formData.category} onValueChange={handleCategoryChange} required>
-                <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-11 px-3.5 text-slate-800 font-medium">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-[100] shadow-2xl border border-slate-200 text-slate-800 rounded-2xl p-1.5 min-w-[200px]">
-                  <SelectItem value="Food" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
-                    <span className="flex items-center gap-2">
-                      <Utensils className="w-4 h-4 text-amber-500" />
-                      Food
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="Travel" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
-                    <span className="flex items-center gap-2">
-                      <Plane className="w-4 h-4 text-sky-500" />
-                      Travel
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="Shopping" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
-                    <span className="flex items-center gap-2">
-                      <ShoppingBag className="w-4 h-4 text-pink-500" />
-                      Shopping
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="Bills" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
-                    <span className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-emerald-500" />
-                      Bills
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="Health" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
-                    <span className="flex items-center gap-2">
-                      <HeartPulse className="w-4 h-4 text-red-500" />
-                      Health
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="Entertainment" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
-                    <span className="flex items-center gap-2">
-                      <Film className="w-4 h-4 text-purple-500" />
-                      Entertainment
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="Others" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
-                    <span className="flex items-center gap-2">
-                      <MoreHorizontal className="w-4 h-4 text-slate-500" />
-                      Others
-                    </span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              {showCustomInput ? (
+                <div className="flex gap-2">
+                  <Input
+                    autoFocus
+                    value={customCategoryInput}
+                    onChange={e => setCustomCategoryInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddCustomCategory())}
+                    placeholder="e.g. Gym, Petrol..."
+                    className="bg-slate-50 border-slate-200 rounded-xl h-11 flex-1"
+                  />
+                  <Button type="button" onClick={handleAddCustomCategory}
+                    className="rounded-xl h-11 px-3 bg-blue-600 text-white hover:bg-blue-700">
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                  <Button type="button" variant="ghost" onClick={() => setShowCustomInput(false)}
+                    className="rounded-xl h-11 px-3 text-slate-500">
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Select value={formData.category} onValueChange={handleCategoryChange} required>
+                  <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-11 px-3.5 text-slate-800 font-medium">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-[100] shadow-2xl border border-slate-200 text-slate-800 rounded-2xl p-1.5 min-w-[200px]">
+                    {allCategories.map(({ value, icon: Icon, color }) => (
+                      <SelectItem key={value} value={value} className="rounded-xl cursor-pointer py-2 px-3 hover:bg-slate-100">
+                        <span className="flex items-center justify-between gap-2 w-full">
+                          <span className="flex items-center gap-2">
+                            <Icon className={`w-4 h-4 ${color}`} />
+                            {value}
+                          </span>
+                          {customCategories.includes(value) && (
+                            <span
+                              onClick={e => { e.stopPropagation(); handleRemoveCustomCategory(value); }}
+                              className="ml-2 text-slate-400 hover:text-red-500 cursor-pointer"
+                              title="Remove custom category"
+                            >
+                              <X className="w-3 h-3" />
+                            </span>
+                          )}
+                        </span>
+                      </SelectItem>
+                    ))}
+                    {/* Add Custom option */}
+                    <SelectItem value="__add_custom__" className="rounded-xl cursor-pointer py-2 px-3 hover:bg-blue-50 text-blue-600 font-semibold">
+                      <span className="flex items-center gap-2">
+                        <Plus className="w-4 h-4 text-blue-500" />
+                        Add Custom Category
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
-            {/* Notes / Description (Optional) */}
+            {/* Notes */}
             <div className="grid gap-1.5">
               <label htmlFor="description" className="text-xs font-semibold text-slate-700 flex items-center justify-between">
                 <span>Notes / Description</span>
                 <span className="text-[10px] text-slate-400 font-normal">(Optional)</span>
               </label>
-              <Textarea 
-                id="description" 
-                value={formData.description} 
-                onChange={handleChange} 
-                placeholder="Add optional notes..." 
-                className="resize-none bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-20 text-xs" 
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Add optional notes..."
+                className="resize-none bg-slate-50 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 rounded-xl h-20 text-xs"
               />
             </div>
           </div>
@@ -225,12 +273,12 @@ export function ExpenseForm({ isOpen, onClose, onRefresh, initialData }) {
             <Button type="button" variant="outline" onClick={onClose} className="rounded-xl border-slate-200" disabled={loading}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSaveDisabled}
               style={
-                isSaveDisabled 
-                  ? { backgroundColor: '#cbd5e1', color: '#64748b', cursor: 'not-allowed', opacity: 0.6 } 
+                isSaveDisabled
+                  ? { backgroundColor: '#cbd5e1', color: '#64748b', cursor: 'not-allowed', opacity: 0.6 }
                   : { backgroundColor: '#2563eb', color: '#ffffff', cursor: 'pointer' }
               }
               className="rounded-xl font-bold transition-all border-0 shadow-sm"

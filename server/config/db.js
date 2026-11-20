@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const DEFAULT_MONGO_URI = "mongodb+srv://balakumarancse2022:tZzf6qGmo3sE4R6d@cluster0.wbinumd.mongodb.net/spendflow?retryWrites=true&w=majority&appName=Cluster0";
+const DEFAULT_MONGO_URI = "mongodb://balakumarancse2022:tZzf6qGmo3sE4R6d@ac-c526wla-shard-00-00.wbinumd.mongodb.net:27017,ac-c526wla-shard-00-01.wbinumd.mongodb.net:27017,ac-c526wla-shard-00-02.wbinumd.mongodb.net:27017/spendflow?ssl=true&replicaSet=atlas-1044do-shard-0&authSource=admin&retryWrites=true&w=majority";
 
 const connectDB = async () => {
   try {
@@ -8,6 +8,7 @@ const connectDB = async () => {
 
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 10000,
+      family: 4, // Force IPv4 to avoid IPv6 DNS resolution issues
     });
 
     console.log("✅ MongoDB Connected Successfully");
