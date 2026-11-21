@@ -4,6 +4,7 @@ import Dashboard from '../pages/Dashboard';
 import Expenses from '../pages/Expenses';
 import Reports from '../pages/Reports';
 import BulkDelete from '../pages/BulkDelete';
+import Budget from '../pages/Budget';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import { NotFound } from '../pages/NotFound';
@@ -34,6 +35,7 @@ export function AppRoutes() {
         <Route index element={<Dashboard />} />
         <Route path="expenses" element={<Expenses />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="budget" element={<Budget />} />
         <Route path="bulk-delete" element={<BulkDelete />} />
         <Route path="*" element={<NotFound />} />
       </Route>
