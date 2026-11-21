@@ -1,9 +1,11 @@
-import { Search, LogOut, Wallet } from 'lucide-react';
+import { Search, LogOut, Wallet, Sun, Moon } from 'lucide-react';
 import { Input } from '../ui/input';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export function Navbar() {
   const { user, logout } = useAuth();
+  const { theme, toggle } = useTheme();
   const userName = user?.name || user?.email?.split('@')[0] || 'User';
 
   return (
@@ -38,6 +40,18 @@ export function Navbar() {
           
           {/* Right Header: TWO MATCHING EQUAL-SIZED BUTTONS */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Theme toggle — Lucide icon only */}
+            <button
+              type="button"
+              onClick={toggle}
+              title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+              className="h-8 sm:h-9 w-8 sm:w-9 rounded-full flex items-center justify-center transition-all hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300"
+            >
+              {theme === 'dark'
+                ? <Sun className="w-4 h-4" />
+                : <Moon className="w-4 h-4" />}
+            </button>
+
             {user && (
               <>
                 {/* 1. User Profile Pill - Equal Height (h-8 sm:h-9) */}

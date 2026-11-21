@@ -297,3 +297,84 @@ button:active:not(:disabled),
     min-width: 140px;
   }
 }
+
+/* ─── Dark Mode ───────────────────────────────────── */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body,
+.dark #app {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+/* Navbar */
+.dark nav.sticky,
+.dark nav {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+/* Sidebar */
+.dark aside {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+/* Cards */
+.dark .bg-white {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark [class*="bg-slate-50"] {
+  background: #0f172a !important;
+}
+
+/* Text */
+.dark .text-slate-900 { color: #f1f5f9 !important; }
+.dark .text-slate-800 { color: #e2e8f0 !important; }
+.dark .text-slate-700 { color: #cbd5e1 !important; }
+.dark .text-slate-600 { color: #94a3b8 !important; }
+.dark .text-slate-500 { color: #64748b !important; }
+
+/* Borders */
+.dark .border-slate-100 { border-color: #334155 !important; }
+.dark .border-slate-200 { border-color: #334155 !important; }
+
+/* Inputs */
+.dark input, .dark textarea, .dark select {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Bottom nav */
+.dark .md\\:hidden.fixed.bottom-0 {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-color: #334155 !important;
+}
+
+/* Hover states */
+.dark .hover\\:bg-slate-50:hover { background: #1e293b !important; }
+.dark .hover\\:bg-slate-100:hover { background: #334155 !important; }
+
+/* Dialog / Modal */
+.dark [role="dialog"] > div {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Select dropdown */
+.dark [data-radix-popper-content-wrapper] > div {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Smooth transition */
+html {
+  transition: background-color 200ms ease, color 200ms ease;
+}
