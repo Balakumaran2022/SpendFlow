@@ -5,6 +5,7 @@ import Expenses from '../pages/Expenses';
 import Reports from '../pages/Reports';
 import BulkDelete from '../pages/BulkDelete';
 import Budget from '../pages/Budget';
+import More from '../pages/More';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import { NotFound } from '../pages/NotFound';
@@ -37,6 +38,7 @@ export function AppRoutes() {
         <Route path="reports" element={<Reports />} />
         <Route path="budget" element={<Budget />} />
         <Route path="bulk-delete" element={<BulkDelete />} />
+        <Route path="more" element={<More />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

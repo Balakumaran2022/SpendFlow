@@ -24,29 +24,29 @@ export default function SummaryCards({ expenses = [] }) {
       title: "Total Expense",
       value: `₹${totalExpense.toLocaleString('en-IN')}`,
       icon: Wallet,
-      color: "text-blue-600",
-      bg: "bg-blue-50/80 border border-blue-100",
+      color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50/80 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50",
     },
     {
       title: "Today's Expense",
       value: `₹${todaysExpense.toLocaleString('en-IN')}`,
       icon: IndianRupee,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50/80 border border-emerald-100",
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50",
     },
     {
       title: "This Month",
       value: `₹${thisMonthExpense.toLocaleString('en-IN')}`,
       icon: CalendarDays,
-      color: "text-purple-600",
-      bg: "bg-purple-50/80 border border-purple-100",
+      color: "text-purple-600 dark:text-purple-400",
+      bg: "bg-purple-50/80 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/50",
     },
     {
       title: "Categories",
       value: uniqueCategories.toString(),
       icon: Tags,
-      color: "text-orange-600",
-      bg: "bg-orange-50/80 border border-orange-100",
+      color: "text-orange-600 dark:text-orange-400",
+      bg: "bg-orange-50/80 dark:bg-orange-950/40 border border-orange-100 dark:border-orange-900/50",
     },
   ];
 
@@ -58,25 +58,24 @@ export default function SummaryCards({ expenses = [] }) {
         return (
           <Card
             key={item.title}
-            className="rounded-2xl border border-slate-100/80 shadow-sm hover:shadow-md transition-all duration-200 bg-white overflow-hidden"
+            className="rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-xs hover:shadow-md transition-all duration-200 bg-white dark:bg-slate-800/90 overflow-hidden"
           >
-            <CardContent className="p-2.5 sm:p-5 flex items-center justify-between gap-1.5 sm:gap-2">
+            <CardContent className="p-3 sm:p-5 flex items-center justify-between gap-1.5 sm:gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-[9px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">
+                <p className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider truncate">
                   {item.title}
                 </p>
-                <h2 className="mt-0.5 text-xs sm:text-2xl font-black tracking-tight text-slate-900 truncate">
+                <h2 className="mt-0.5 text-sm sm:text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 truncate">
                   {item.value}
                 </h2>
               </div>
-              <div className={`shrink-0 rounded-lg sm:rounded-2xl p-2 sm:p-3.5 ${item.bg} ${item.color}`}>
-                <Icon className="h-3.5 w-3.5 sm:h-6 sm:w-6" />
+              <div className={`shrink-0 rounded-xl sm:rounded-2xl p-2 sm:p-3.5 ${item.bg} ${item.color}`}>
+                <Icon className="h-4 w-4 sm:h-6 sm:w-6" />
               </div>
             </CardContent>
           </Card>
         );
       })}
     </div>
-
   );
 }

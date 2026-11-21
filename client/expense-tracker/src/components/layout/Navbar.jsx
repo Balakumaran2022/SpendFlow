@@ -9,7 +9,7 @@ export function Navbar() {
   const userName = user?.name || user?.email?.split('@')[0] || 'User';
 
   return (
-    <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 w-full shadow-xs">
+    <nav className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 w-full shadow-xs transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6">
         <div className="flex justify-between items-center h-14 sm:h-16 gap-2">
           
@@ -33,31 +33,33 @@ export function Navbar() {
               <Search className="w-4 h-4 absolute left-3 text-slate-400" />
               <Input 
                 placeholder="Search expenses..." 
-                className="pl-9 bg-slate-50 border-slate-200 focus-visible:ring-blue-100 rounded-full h-9 text-sm"
+                className="pl-9 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:ring-blue-500/20 rounded-full h-9 text-xs sm:text-sm"
               />
             </div>
           </div>
           
-          {/* Right Header: TWO MATCHING EQUAL-SIZED BUTTONS */}
+          {/* Right Header Actions */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Theme toggle — Lucide icon only */}
             <button
               type="button"
               onClick={toggle}
+              aria-label={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
               title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
-              className="h-8 sm:h-9 w-8 sm:w-9 rounded-full flex items-center justify-center transition-all hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300"
+              className="h-8 sm:h-9 w-8 sm:w-9 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-amber-400 transition-all cursor-pointer"
             >
-              {theme === 'dark'
-                ? <Sun className="w-4 h-4" />
-                : <Moon className="w-4 h-4" />}
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
             </button>
 
             {user && (
               <>
-                {/* 1. User Profile Pill - Equal Height (h-8 sm:h-9) */}
+                {/* 1. User Profile Pill */}
                 <div 
-                  style={{ backgroundColor: '#f1f5f9', color: '#0f172a', borderColor: '#cbd5e1' }}
-                  className="h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-full border flex items-center gap-1.5 text-xs font-bold max-w-[120px] sm:max-w-[170px] shrink-0"
+                  className="h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center gap-1.5 text-xs font-bold max-w-[120px] sm:max-w-[170px] shrink-0"
                 >
                   <div 
                     style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
@@ -68,15 +70,14 @@ export function Navbar() {
                   <span className="truncate">{userName}</span>
                 </div>
 
-                {/* 2. Logout Button - EXACT SAME Height (h-8 sm:h-9) and Rounded Style */}
+                {/* 2. Logout Button */}
                 <button
                   type="button"
                   onClick={logout}
                   title="Logout Account"
-                  style={{ backgroundColor: '#fef2f2', color: '#dc2626', borderColor: '#fecaca' }}
-                  className="h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-full border flex items-center gap-1.5 text-xs font-extrabold transition-all hover:bg-red-100 active:scale-95 cursor-pointer shrink-0"
+                  className="h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-full border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 flex items-center gap-1.5 text-xs font-extrabold transition-all hover:bg-red-100 dark:hover:bg-red-900/50 active:scale-95 cursor-pointer shrink-0"
                 >
-                  <LogOut className="w-3.5 h-3.5 stroke-[2.5]" style={{ color: '#dc2626' }} />
+                  <LogOut className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>Logout</span>
                 </button>
               </>
