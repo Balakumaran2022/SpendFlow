@@ -1,16 +1,21 @@
 {
-  "short_name": "BalaSpend",
-  "name": "BalaSpend - Premium Expense Tracker",
+  "short_name": "SpendFlow",
+  "name": "SpendFlow — Smart Expense Tracker",
+  "description": "Track your expenses smartly with SpendFlow",
   "icons": [
-    {
-      "src": "/favicon.svg",
-      "type": "image/svg+xml",
-      "sizes": "512x512"
-    }
+    { "src": "/favicon.png", "type": "image/png", "sizes": "192x192", "purpose": "any maskable" },
+    { "src": "/logo.png",    "type": "image/png", "sizes": "512x512", "purpose": "any maskable" }
   ],
   "start_url": "/",
+  "scope": "/",
   "background_color": "#ffffff",
   "theme_color": "#2563EB",
   "display": "standalone",
-  "orientation": "portrait"
+  "orientation": "portrait-primary",
+  "categories": ["finance", "productivity"],
+  "shortcuts": [
+    { "name": "Dashboard", "url": "/",         "description": "View spending overview" },
+    { "name": "Add Expense","url": "/?add=1",   "description": "Add a new expense" },
+    { "name": "Reports",    "url": "/reports",  "description": "View financial reports" }
+  ]
 }
